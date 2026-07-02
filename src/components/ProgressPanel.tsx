@@ -1,5 +1,6 @@
 import { FIGHTER_RANKS, TRAINING_MODULES, getLevelFromXP, getRank } from "../data/modules";
 import { useState } from "react";
+import { userScopedStorageKey } from "../lib/support";
 
 const LOCAL_KEY = "cl_progress_v1";
 
@@ -13,18 +14,19 @@ interface LocalProgress {
 }
 
 const DEFAULT_PROGRESS: LocalProgress = {
-  xp: 350,
-  streak: 3,
-  completedModules: ["boxe"],
-  currentWeek: 2,
-  totalSessions: 7,
-  lastSession: new Date().toISOString().split("T")[0],
+  xp: 0,
+  streak: 0,
+  completedModules: [],
+  currentWeek: 1,
+  totalSessions: 0,
+  lastSession: "",
 };
 
 export function useLocalProgress() {
+  const storageKey = userScopedStorageKey(LOCAL_KEY);
   const [progress, setProgress] = useState<LocalProgress>(() => {
     try {
-      const stored = localStorage.getItem(LOCAL_KEY);
+      const stored = localStorage.getItem(storageKey);
       return stored ? JSON.parse(stored) : DEFAULT_PROGRESS;
     } catch {
       return DEFAULT_PROGRESS;
@@ -34,7 +36,7 @@ export function useLocalProgress() {
   const updateProgress = (delta: Partial<LocalProgress>) => {
     setProgress(prev => {
       const next = { ...prev, ...delta };
-      localStorage.setItem(LOCAL_KEY, JSON.stringify(next));
+      localStorage.setItem(storageKey, JSON.stringify(next));
       return next;
     });
   };

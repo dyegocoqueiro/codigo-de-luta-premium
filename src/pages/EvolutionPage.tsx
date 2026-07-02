@@ -8,6 +8,7 @@ import RadarChart from "../components/RadarChart";
 import ScrollReveal from "../components/ScrollReveal";
 import { getLevelFromXP, getRank } from "../data/modules";
 import logoImg from "@assets/codigo-luta-logo_1782758047742.png";
+import { userScopedStorageKey } from "../lib/support";
 
 interface SessionEntry {
   id: string;
@@ -30,13 +31,13 @@ const LOCAL_KEY = "cl_evolution_v2";
 
 function loadSessions(): SessionEntry[] {
   try {
-    const raw = localStorage.getItem(LOCAL_KEY);
+    const raw = localStorage.getItem(userScopedStorageKey(LOCAL_KEY));
     return raw ? JSON.parse(raw) : [];
   } catch { return []; }
 }
 
 function saveSessions(sessions: SessionEntry[]) {
-  localStorage.setItem(LOCAL_KEY, JSON.stringify(sessions));
+  localStorage.setItem(userScopedStorageKey(LOCAL_KEY), JSON.stringify(sessions));
 }
 
 function generateKodeAnalise(session: Omit<SessionEntry, "id" | "date" | "kodeAnalise" | "xpGanho">): string {

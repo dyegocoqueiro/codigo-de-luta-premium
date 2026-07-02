@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { COMBOS, CATEGORIES, LEVELS, MODULE_COLORS } from "../data/combos";
 import logoImg from "@assets/codigo-luta-logo_1782758047742.png";
+import { userScopedStorageKey } from "../lib/support";
 
 const VISIBLE_STEP = 18;
 
@@ -12,7 +13,7 @@ export default function CombosPage() {
   const [visible, setVisible] = useState(VISIBLE_STEP);
   const [studied, setStudied] = useState<Set<number>>(() => {
     try {
-      const raw = localStorage.getItem("cl_studied_combos");
+      const raw = localStorage.getItem(userScopedStorageKey("cl_studied_combos"));
       return raw ? new Set(JSON.parse(raw)) : new Set();
     } catch { return new Set(); }
   });
@@ -34,7 +35,7 @@ export default function CombosPage() {
     setStudied(prev => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
-      localStorage.setItem("cl_studied_combos", JSON.stringify([...next]));
+      localStorage.setItem(userScopedStorageKey("cl_studied_combos"), JSON.stringify([...next]));
       return next;
     });
   };

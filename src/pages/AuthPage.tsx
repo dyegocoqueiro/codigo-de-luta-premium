@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import logoImg from "@assets/codigo-luta-logo_1782758047742.png";
 import muayThaiImg from "@assets/muay-thai-legend-bg_1782758047742.png";
+import { SUPPORT_EMAIL, buildSupportMailto } from "../lib/support";
 
 interface AuthUser {
   id: number;
@@ -51,6 +52,18 @@ function createToken() {
   return `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
+async function loadApprovedEmails() {
+  try {
+    const response = await fetch(`${import.meta.env.BASE_URL}approved-emails.json`, { cache: "no-store" });
+    if (!response.ok) return [SUPPORT_EMAIL];
+    const data = await response.json();
+    const allowed = Array.isArray(data.allowed) ? data.allowed : [];
+    return allowed.map((item: unknown) => String(item).trim().toLowerCase()).filter(Boolean);
+  } catch {
+    return [SUPPORT_EMAIL];
+  }
+}
+
 export default function AuthPage({ onAuth }: AuthPageProps) {
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
@@ -92,6 +105,12 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
       let storedUser = users.find((user) => user.email.toLowerCase() === normalizedEmail);
 
       if (mode === "register") {
+        const approvedEmails = await loadApprovedEmails();
+        if (!approvedEmails.includes(normalizedEmail)) {
+          setError(`Este e-mail ainda não foi liberado. Peça liberação em ${SUPPORT_EMAIL}.`);
+          return;
+        }
+
         if (storedUser) {
           setError("Este e-mail já possui cadastro neste dispositivo.");
           return;
@@ -370,7 +389,17 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
           </div>
 
           <div className="mt-4 text-center text-xs" style={{ color: "#6b7a8d" }}>
-            🔒 Seus dados são seguros e armazenados com criptografia
+            Cadastro liberado apenas para e-mails autorizados pelo Código de Luta.
+          </div>
+
+          <div className="mt-3 text-center text-xs">
+            <a
+              href={buildSupportMailto("Liberação de acesso ao Código de Luta", ["Quero liberar meu e-mail para criar conta."])}
+              className="font-bold transition-colors hover:opacity-80"
+              style={{ color: "#f8c54d" }}
+            >
+              Pedir liberação ou tirar dúvida
+            </a>
           </div>
         </div>
       </div>

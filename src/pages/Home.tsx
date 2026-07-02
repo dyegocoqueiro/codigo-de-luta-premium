@@ -125,7 +125,7 @@ function ModuleCard({ mod, index, onVideoClick }: {
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [currentWeek] = useState(2);
+  const [currentWeek] = useState(1);
   const [ytModal, setYtModal] = useState<{ id: string; title: string; videos?: TrainingVideo[] } | null>(null);
   const { containerRef: statsContainer, visibleCount: statsVisible } = useMultiReveal(4, 100);
   const { containerRef: weekContainer, visibleCount: weekVisible } = useMultiReveal(8, 80);
@@ -231,8 +231,8 @@ export default function Home() {
                   <div className="text-xs tracking-widest uppercase mb-4" style={{ color: "#d50f32" }}>Painel do Lutador</div>
                   <div className="grid grid-cols-2 gap-3">
                     {[
-                      { label: "Semana Atual", value: "2 / 8", sub: "Fundação 2", color: "#f8c54d" },
-                      { label: "XP Total", value: "350", sub: "+75 hoje", color: "#32d98b" },
+                      { label: "Semana Atual", value: "1 / 8", sub: "Fundação 1", color: "#f8c54d" },
+                      { label: "XP Total", value: "0", sub: "início limpo", color: "#32d98b" },
                       { label: "Módulos", value: "8", sub: "artes marciais", color: "#59bfff" },
                       { label: "Combos", value: "30+", sub: "sequências", color: "#ff355a" },
                     ].map(stat => (

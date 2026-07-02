@@ -10,6 +10,8 @@ import EvolutionPage from "@/pages/EvolutionPage";
 import AuthPage from "@/pages/AuthPage";
 import Navbar from "@/components/Navbar";
 import ParticleCanvas from "@/components/ParticleCanvas";
+import ErrorReporter from "@/components/ErrorReporter";
+import SupportButton from "@/components/SupportButton";
 import bgMusic from "@assets/NEFFEX_-_Fightback_(INSTRUMENTAL)_-_IXORBEATZZ_(youtube)_1782758047742.mp3";
 
 const queryClient = new QueryClient({
@@ -118,6 +120,7 @@ function AppShell() {
         user={auth.user}
         onLogout={handleLogout}
       />
+      <SupportButton />
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/combos" component={CombosPage} />
@@ -134,6 +137,7 @@ function App() {
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
           <AppShell />
+          <ErrorReporter />
         </WouterRouter>
         <Toaster />
       </TooltipProvider>

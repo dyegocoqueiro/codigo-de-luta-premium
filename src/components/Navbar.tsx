@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import logoImg from "@assets/codigo-luta-logo_1782758047742.png";
+import { buildSupportMailto } from "../lib/support";
 
 interface AuthUser {
   id: number;
@@ -149,6 +150,14 @@ export default function Navbar({ musicPlaying, onMusicToggle, user, onLogout }: 
                             <span>📊</span> Minha Evolução
                           </div>
                         </Link>
+                        <a
+                          href={buildSupportMailto("Dúvida no Código de Luta")}
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm cursor-pointer hover:bg-white/5 transition-colors"
+                          style={{ color: "#f8c54d" }}
+                        >
+                          <span>✉️</span> Ajuda / Dúvidas
+                        </a>
                         <button
                           onClick={() => { setUserMenuOpen(false); onLogout?.(); }}
                           className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-colors hover:bg-red-500/10"
@@ -203,6 +212,14 @@ export default function Navbar({ musicPlaying, onMusicToggle, user, onLogout }: 
               )
             ))}
             {user && (
+              <>
+              <a
+                href={buildSupportMailto("Dúvida no Código de Luta")}
+                className="px-3 py-2 text-sm rounded-lg hover:bg-white/5"
+                style={{ color: "#f8c54d" }}
+              >
+                ✉️ Ajuda / Dúvidas
+              </a>
               <button
                 onClick={() => { setMenuOpen(false); onLogout?.(); }}
                 className="text-left px-3 py-2 text-sm rounded-lg hover:bg-red-500/10"
@@ -210,6 +227,7 @@ export default function Navbar({ musicPlaying, onMusicToggle, user, onLogout }: 
               >
                 🚪 Sair
               </button>
+              </>
             )}
           </div>
         </div>
