@@ -5,7 +5,7 @@ import muayThaiImg from "@assets/muay-thai-legend-bg_1782758047742.png";
 import heroLutadoresImg from "@assets/codigo-luta-hero-lutadores_1782758047742.png";
 import heroVideo from "@assets/codigo-luta-hero-lutadores_1782758047742.mp4";
 import kodeAvatar from "@assets/kode-avatar_1782758047742.png";
-import { TRAINING_MODULES } from "../data/modules";
+import { TRAINING_MODULES, type TrainingVideo } from "../data/modules";
 import { COMBOS } from "../data/combos";
 import KodeChat from "../components/KodeChat";
 import ProgressPanel from "../components/ProgressPanel";
@@ -27,9 +27,11 @@ const WEEK_SCHEDULE = [
 function ModuleCard({ mod, index, onVideoClick }: {
   mod: typeof TRAINING_MODULES[0];
   index: number;
-  onVideoClick: (id: string, title: string) => void;
+  onVideoClick: (id: string, title: string, videos?: TrainingVideo[]) => void;
 }) {
   const [hovered, setHovered] = useState(false);
+  const videos = mod.youtubeVideos?.length ? mod.youtubeVideos : [{ id: mod.youtubeId, title: mod.youtubeTitle }];
+  const primaryVideo = videos[0];
 
   return (
     <ScrollReveal animation="fadeUp" delay={index * 80} duration={700}>
@@ -44,15 +46,15 @@ function ModuleCard({ mod, index, onVideoClick }: {
         <div
           className="relative overflow-hidden cursor-pointer group"
           style={{ height: "140px" }}
-          onClick={() => onVideoClick(mod.youtubeId, mod.youtubeTitle)}
+          onClick={() => onVideoClick(primaryVideo.id, primaryVideo.title, videos)}
         >
           <img
-            src={`https://img.youtube.com/vi/${mod.youtubeId}/maxresdefault.jpg`}
-            alt={mod.youtubeTitle}
+            src={`https://img.youtube.com/vi/${primaryVideo.id}/hqdefault.jpg`}
+            alt={primaryVideo.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             style={{ filter: "brightness(0.55) saturate(1.1)" }}
             onError={(e) => {
-              (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${mod.youtubeId}/hqdefault.jpg`;
+              (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${primaryVideo.id}/mqdefault.jpg`;
             }}
           />
           <div className="absolute inset-0 flex items-center justify-center" style={{ background: `radial-gradient(circle, ${mod.color}30, transparent 60%)` }}>
@@ -67,7 +69,7 @@ function ModuleCard({ mod, index, onVideoClick }: {
           </div>
           <div className="absolute bottom-2 left-2 right-2">
             <div className="text-xs text-white/80 truncate" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
-              {mod.youtubeTitle}
+              {primaryVideo.title}
             </div>
           </div>
           <div
@@ -108,7 +110,7 @@ function ModuleCard({ mod, index, onVideoClick }: {
           <div className="mt-4 pt-3 flex items-center justify-between" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
             <div className="text-xs" style={{ color: "#aab5c4" }}>{mod.weeks}</div>
             <button
-              onClick={() => onVideoClick(mod.youtubeId, mod.youtubeTitle)}
+              onClick={() => onVideoClick(primaryVideo.id, primaryVideo.title, videos)}
               className="text-xs px-3 py-1 rounded-full transition-all hover:opacity-80"
               style={{ background: `${mod.color}18`, color: mod.color, border: `1px solid ${mod.color}25` }}
             >
@@ -124,7 +126,7 @@ function ModuleCard({ mod, index, onVideoClick }: {
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [currentWeek] = useState(2);
-  const [ytModal, setYtModal] = useState<{ id: string; title: string } | null>(null);
+  const [ytModal, setYtModal] = useState<{ id: string; title: string; videos?: TrainingVideo[] } | null>(null);
   const { containerRef: statsContainer, visibleCount: statsVisible } = useMultiReveal(4, 100);
   const { containerRef: weekContainer, visibleCount: weekVisible } = useMultiReveal(8, 80);
 
@@ -139,14 +141,14 @@ export default function Home() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const openVideo = (id: string, title: string) => setYtModal({ id, title });
+  const openVideo = (id: string, title: string, videos?: TrainingVideo[]) => setYtModal({ id, title, videos });
   const closeVideo = () => setYtModal(null);
 
   return (
     <div className="min-h-screen" style={{ background: "#07080b" }}>
 
       {ytModal && (
-        <YouTubeModal videoId={ytModal.id} title={ytModal.title} onClose={closeVideo} />
+        <YouTubeModal videoId={ytModal.id} title={ytModal.title} videos={ytModal.videos} onClose={closeVideo} />
       )}
 
       {/* ===== HERO ===== */}

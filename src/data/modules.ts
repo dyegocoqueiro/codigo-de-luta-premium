@@ -1,3 +1,8 @@
+export interface TrainingVideo {
+  id: string;
+  title: string;
+}
+
 export interface TrainingModule {
   id: string;
   name: string;
@@ -11,6 +16,7 @@ export interface TrainingModule {
   week: number;
   youtubeId: string;
   youtubeTitle: string;
+  youtubeVideos?: TrainingVideo[];
 }
 
 export const TRAINING_MODULES: TrainingModule[] = [
@@ -25,8 +31,12 @@ export const TRAINING_MODULES: TrainingModule[] = [
     glowColor: "rgba(89,191,255,0.4)",
     icon: "👊",
     week: 1,
-    youtubeId: "T_T6gT2HjNc",
-    youtubeTitle: "Fundamentos do Boxe — Técnica de jab e direto",
+    youtubeId: "fWfsbL2ulj8",
+    youtubeTitle: "Boxe — Shadow Boxing 101",
+    youtubeVideos: [
+      { id: "fWfsbL2ulj8", title: "Boxe — Shadow Boxing 101" },
+      { id: "m7ryD1l_5qM", title: "Boxe — Footwork de Boxe" },
+    ],
   },
   {
     id: "muaythai",
@@ -39,8 +49,11 @@ export const TRAINING_MODULES: TrainingModule[] = [
     glowColor: "rgba(213,15,50,0.4)",
     icon: "🦵",
     week: 2,
-    youtubeId: "Gt5_jnE-kac",
-    youtubeTitle: "Muay Thai — Teep, roundhouse e clinch",
+    youtubeId: "SzvumAd30H8",
+    youtubeTitle: "Muay Thai — How To Low Kick",
+    youtubeVideos: [
+      { id: "SzvumAd30H8", title: "Muay Thai — How To Low Kick" },
+    ],
   },
   {
     id: "kickboxing",
@@ -53,8 +66,11 @@ export const TRAINING_MODULES: TrainingModule[] = [
     glowColor: "rgba(248,197,77,0.4)",
     icon: "⚡",
     week: 3,
-    youtubeId: "xGMa_G6Oa2g",
-    youtubeTitle: "Kickboxing — Combinações de socos e chutes",
+    youtubeId: "kCva31o4cdI",
+    youtubeTitle: "Kickboxing — Checking Low Kicks",
+    youtubeVideos: [
+      { id: "kCva31o4cdI", title: "Kickboxing — Checking Low Kicks" },
+    ],
   },
   {
     id: "sanda",
@@ -67,8 +83,12 @@ export const TRAINING_MODULES: TrainingModule[] = [
     glowColor: "rgba(50,217,139,0.4)",
     icon: "🌪️",
     week: 4,
-    youtubeId: "0bka1ZkiGiM",
-    youtubeTitle: "Sanda — Técnicas e fundamentos do boxe chinês",
+    youtubeId: "Ucvb4-YbnIU",
+    youtubeTitle: "Sanda — Wushu Sanda Kickboxing Tutorial",
+    youtubeVideos: [
+      { id: "Ucvb4-YbnIU", title: "Sanda — Wushu Sanda Kickboxing Tutorial" },
+      { id: "O0rgVR46UOg", title: "Sanda — The Sanda Sidekick" },
+    ],
   },
   {
     id: "sambo",
@@ -81,8 +101,11 @@ export const TRAINING_MODULES: TrainingModule[] = [
     glowColor: "rgba(230,126,34,0.4)",
     icon: "🤼",
     week: 5,
-    youtubeId: "VHrJqjqGmDg",
-    youtubeTitle: "Wrestling para MMA — Sprawl e anti-takedown",
+    youtubeId: "YyA0JAnK5l8",
+    youtubeTitle: "Wrestling para MMA — Sprawl Solo Drill",
+    youtubeVideos: [
+      { id: "YyA0JAnK5l8", title: "Wrestling para MMA — Sprawl Solo Drill" },
+    ],
   },
   {
     id: "bjj",
@@ -95,8 +118,12 @@ export const TRAINING_MODULES: TrainingModule[] = [
     glowColor: "rgba(155,89,182,0.4)",
     icon: "🥋",
     week: 6,
-    youtubeId: "VQ9Z7K4cQBs",
-    youtubeTitle: "BJJ Solo Drills — Shrimp, bridge e guard recovery",
+    youtubeId: "kd6tg6wS1_A",
+    youtubeTitle: "BJJ — Warm-ups and Solo Drills",
+    youtubeVideos: [
+      { id: "kd6tg6wS1_A", title: "BJJ — Warm-ups and Solo Drills" },
+      { id: "w_0fqd8aQco", title: "BJJ — How to Shrimp" },
+    ],
   },
   {
     id: "kravmaga",
@@ -109,8 +136,12 @@ export const TRAINING_MODULES: TrainingModule[] = [
     glowColor: "rgba(192,57,43,0.4)",
     icon: "🛡️",
     week: 7,
-    youtubeId: "FXgjU4gWLbg",
-    youtubeTitle: "Krav Maga — Defesa pessoal responsável",
+    youtubeId: "Guw2-FSEaCI",
+    youtubeTitle: "Krav Maga — 5 Minute Fitness Drill",
+    youtubeVideos: [
+      { id: "Guw2-FSEaCI", title: "Krav Maga — 5 Minute Fitness Drill" },
+      { id: "imqRTaTbTAc", title: "Krav Maga e MMA — Basic Footwork" },
+    ],
   },
   {
     id: "mma",
@@ -123,8 +154,11 @@ export const TRAINING_MODULES: TrainingModule[] = [
     glowColor: "rgba(255,53,90,0.4)",
     icon: "⚔️",
     week: 8,
-    youtubeId: "RkmQoUlJb0I",
-    youtubeTitle: "MMA Integrado — Shadow MMA e transições completas",
+    youtubeId: "MrzGlecbLxU",
+    youtubeTitle: "MMA Integrado — 15 Minute MMA Shadowboxing Workout",
+    youtubeVideos: [
+      { id: "MrzGlecbLxU", title: "MMA Integrado — 15 Minute MMA Shadowboxing Workout" },
+    ],
   },
 ];
 
