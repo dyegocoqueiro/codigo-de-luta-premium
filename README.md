@@ -19,4 +19,4 @@ Edite `public/approved-emails.json` e adicione o e-mail da pessoa na lista `allo
 
 ## Contas entre aparelhos
 
-O GitHub Pages hospeda apenas arquivos estaticos, entao ele nao tem banco de dados proprio. Para a mesma conta salvar progresso em celular, PC, notebook e tablet, conecte um backend como Firebase, Supabase ou Google Apps Script.
+O GitHub Pages hospeda apenas arquivos estaticos, entao ele nao tem banco de dados proprio. O site ja esta preparado para usar Firebase como backend de contas reais. Siga `docs/FIREBASE_SETUP.md` para ativar login, lista de e-mails liberados e sincronizacao de progresso entre celular, PC, notebook e tablet.

@@ -1,8 +1,9 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { COMBOS, CATEGORIES, LEVELS, MODULE_COLORS } from "../data/combos";
 import logoImg from "@assets/codigo-luta-logo_1782758047742.png";
 import { userScopedStorageKey } from "../lib/support";
+import { loadCloudStudiedCombos, saveCloudStudiedCombos } from "../lib/cloudBackend";
 
 const VISIBLE_STEP = 18;
 
@@ -18,6 +19,22 @@ export default function CombosPage() {
     } catch { return new Set(); }
   });
   const [expanded, setExpanded] = useState<number | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    loadCloudStudiedCombos<number[]>()
+      .then((cloudStudied) => {
+        if (!active || !Array.isArray(cloudStudied)) return;
+        setStudied(new Set(cloudStudied));
+        localStorage.setItem(userScopedStorageKey("cl_studied_combos"), JSON.stringify(cloudStudied));
+      })
+      .catch(() => {});
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const filtered = useMemo(() => {
     return COMBOS.filter(c => {
@@ -35,7 +52,9 @@ export default function CombosPage() {
     setStudied(prev => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
-      localStorage.setItem(userScopedStorageKey("cl_studied_combos"), JSON.stringify([...next]));
+      const nextList = [...next];
+      localStorage.setItem(userScopedStorageKey("cl_studied_combos"), JSON.stringify(nextList));
+      saveCloudStudiedCombos(nextList).catch(() => {});
       return next;
     });
   };

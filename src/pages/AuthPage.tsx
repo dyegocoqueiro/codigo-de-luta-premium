@@ -2,9 +2,10 @@ import { useState, type FormEvent } from "react";
 import logoImg from "@assets/codigo-luta-logo_1782758047742.png";
 import muayThaiImg from "@assets/muay-thai-legend-bg_1782758047742.png";
 import { SUPPORT_EMAIL, buildSupportMailto } from "../lib/support";
+import { isCloudConfigured, loginCloudAccount, registerCloudAccount } from "../lib/cloudBackend";
 
 interface AuthUser {
-  id: number;
+  id: number | string;
   email: string;
   name?: string | null;
   phone?: string | null;
@@ -64,6 +65,16 @@ async function loadApprovedEmails() {
   }
 }
 
+function friendlyAuthError(error: unknown) {
+  const message = error instanceof Error ? error.message : "";
+  if (message.includes("auth/email-already-in-use")) return "Este e-mail já possui cadastro. Use a aba Entrar.";
+  if (message.includes("auth/invalid-credential") || message.includes("auth/wrong-password")) return "E-mail ou senha inválidos.";
+  if (message.includes("auth/user-not-found")) return "Conta não encontrada para este e-mail.";
+  if (message.includes("auth/weak-password")) return "A senha deve ter pelo menos 6 caracteres.";
+  if (message.includes("auth/too-many-requests")) return "Muitas tentativas. Aguarde um pouco e tente novamente.";
+  return message || "Não foi possível acessar sua conta. Tente novamente.";
+}
+
 export default function AuthPage({ onAuth }: AuthPageProps) {
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
@@ -100,6 +111,24 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
     setLoading(true);
     try {
       const normalizedEmail = email.trim().toLowerCase();
+      const cloudReady = await isCloudConfigured();
+
+      if (cloudReady) {
+        const authResult = mode === "register"
+          ? await registerCloudAccount({
+              email: normalizedEmail,
+              password,
+              name,
+              phone,
+            })
+          : await loginCloudAccount(normalizedEmail, password);
+
+        localStorage.setItem("cl_auth_token", authResult.token);
+        localStorage.setItem("cl_auth_user", JSON.stringify(authResult.user));
+        onAuth(authResult.token, authResult.user);
+        return;
+      }
+
       const users = loadUsers();
       const passwordHash = await hashPassword(password);
       let storedUser = users.find((user) => user.email.toLowerCase() === normalizedEmail);
@@ -140,8 +169,8 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
       localStorage.setItem("cl_auth_token", token);
       localStorage.setItem("cl_auth_user", JSON.stringify(user));
       onAuth(token, user);
-    } catch {
-      setError("Não foi possível acessar os dados locais. Tente novamente.");
+    } catch (error) {
+      setError(friendlyAuthError(error));
     } finally {
       setLoading(false);
     }

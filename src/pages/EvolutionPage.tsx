@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -9,6 +9,7 @@ import ScrollReveal from "../components/ScrollReveal";
 import { getLevelFromXP, getRank } from "../data/modules";
 import logoImg from "@assets/codigo-luta-logo_1782758047742.png";
 import { userScopedStorageKey } from "../lib/support";
+import { loadCloudSessions, saveCloudSessions } from "../lib/cloudBackend";
 
 interface SessionEntry {
   id: string;
@@ -38,6 +39,7 @@ function loadSessions(): SessionEntry[] {
 
 function saveSessions(sessions: SessionEntry[]) {
   localStorage.setItem(userScopedStorageKey(LOCAL_KEY), JSON.stringify(sessions));
+  saveCloudSessions(sessions).catch(() => {});
 }
 
 function generateKodeAnalise(session: Omit<SessionEntry, "id" | "date" | "kodeAnalise" | "xpGanho">): string {
@@ -136,6 +138,22 @@ export default function EvolutionPage() {
   const [showAnalise, setShowAnalise] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState<"registrar" | "historico" | "analise">("registrar");
+
+  useEffect(() => {
+    let active = true;
+
+    loadCloudSessions<SessionEntry[]>()
+      .then((cloudSessions) => {
+        if (!active || !Array.isArray(cloudSessions)) return;
+        setSessions(cloudSessions);
+        localStorage.setItem(userScopedStorageKey(LOCAL_KEY), JSON.stringify(cloudSessions));
+      })
+      .catch(() => {});
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const totalXP = sessions.reduce((s, e) => s + e.xpGanho, 0);
   const { level, currentXP, nextLevelXP } = getLevelFromXP(totalXP);

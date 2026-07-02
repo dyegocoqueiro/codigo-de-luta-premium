@@ -1,6 +1,7 @@
 import { FIGHTER_RANKS, TRAINING_MODULES, getLevelFromXP, getRank } from "../data/modules";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { userScopedStorageKey } from "../lib/support";
+import { loadCloudProgress, saveCloudProgress } from "../lib/cloudBackend";
 
 const LOCAL_KEY = "cl_progress_v1";
 
@@ -33,10 +34,28 @@ export function useLocalProgress() {
     }
   });
 
+  useEffect(() => {
+    let active = true;
+
+    loadCloudProgress<LocalProgress>()
+      .then((cloudProgress) => {
+        if (!active || !cloudProgress) return;
+        const next = { ...DEFAULT_PROGRESS, ...cloudProgress };
+        setProgress(next);
+        localStorage.setItem(storageKey, JSON.stringify(next));
+      })
+      .catch(() => {});
+
+    return () => {
+      active = false;
+    };
+  }, [storageKey]);
+
   const updateProgress = (delta: Partial<LocalProgress>) => {
     setProgress(prev => {
       const next = { ...prev, ...delta };
       localStorage.setItem(storageKey, JSON.stringify(next));
+      saveCloudProgress(next).catch(() => {});
       return next;
     });
   };

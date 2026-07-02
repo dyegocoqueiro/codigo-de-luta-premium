@@ -4,7 +4,7 @@ import logoImg from "@assets/codigo-luta-logo_1782758047742.png";
 import { buildSupportMailto } from "../lib/support";
 
 interface AuthUser {
-  id: number;
+  id: number | string;
   email: string;
   name?: string | null;
 }

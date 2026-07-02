@@ -2,7 +2,7 @@ export const SUPPORT_EMAIL = "dyegocodigodeluta@gmail.com";
 export const AUTH_USER_KEY = "cl_auth_user";
 
 export interface StoredAuthUser {
-  id: number;
+  id: number | string;
   email: string;
   name?: string | null;
   phone?: string | null;

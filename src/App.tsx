@@ -12,6 +12,7 @@ import Navbar from "@/components/Navbar";
 import ParticleCanvas from "@/components/ParticleCanvas";
 import ErrorReporter from "@/components/ErrorReporter";
 import SupportButton from "@/components/SupportButton";
+import { signOutCloudAccount, subscribeCloudAuth } from "@/lib/cloudBackend";
 import bgMusic from "@assets/NEFFEX_-_Fightback_(INSTRUMENTAL)_-_IXORBEATZZ_(youtube)_1782758047742.mp3";
 
 const queryClient = new QueryClient({
@@ -25,7 +26,7 @@ const AUTH_TOKEN_KEY = "cl_auth_token";
 const AUTH_USER_KEY = "cl_auth_user";
 
 interface AuthUser {
-  id: number;
+  id: number | string;
   email: string;
   name?: string | null;
   phone?: string | null;
@@ -49,6 +50,32 @@ function AppShell() {
   const [musicMuted, setMusicMuted] = useState(() => localStorage.getItem(MUSIC_KEY) === "1");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const startedRef = useRef(false);
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    let mounted = true;
+
+    subscribeCloudAuth((cloudAuth) => {
+      if (!mounted) return;
+      if (!cloudAuth) {
+        localStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem(AUTH_USER_KEY);
+        setAuth(null);
+        return;
+      }
+
+      localStorage.setItem(AUTH_TOKEN_KEY, cloudAuth.token);
+      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(cloudAuth.user));
+      setAuth(cloudAuth);
+    }).then((cleanup) => {
+      unsubscribe = cleanup;
+    }).catch(() => {});
+
+    return () => {
+      mounted = false;
+      unsubscribe?.();
+    };
+  }, []);
 
   useEffect(() => {
     const audio = new Audio(bgMusic);
@@ -101,6 +128,7 @@ function AppShell() {
   };
 
   const handleLogout = () => {
+    signOutCloudAccount().catch(() => {});
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(AUTH_USER_KEY);
     setAuth(null);
