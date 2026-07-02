@@ -51,6 +51,9 @@ export default function YouTubeModal({ videoId, title, videos, onClose }: YouTub
           borderRadius: "24px",
           border: "1px solid rgba(213,15,50,0.3)",
           overflow: "hidden",
+          maxHeight: "calc(100svh - 32px)",
+          display: "flex",
+          flexDirection: "column",
           boxShadow: "0 0 80px rgba(213,15,50,0.15)",
         }}
       >
@@ -107,9 +110,9 @@ export default function YouTubeModal({ videoId, title, videos, onClose }: YouTub
           </div>
         </div>
 
-        <div className="px-6 py-5 space-y-3">
+        <div className="px-6 py-5 space-y-3" style={{ overflowY: "auto" }}>
           {playlist.length > 1 && (
-            <div className="space-y-2">
+            <div className="space-y-2" style={{ maxHeight: "190px", overflowY: "auto", paddingRight: "2px" }}>
               {playlist.map((video, index) => {
                 const isActive = video.id === activeVideo.id;
                 return (

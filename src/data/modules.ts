@@ -36,6 +36,9 @@ export const TRAINING_MODULES: TrainingModule[] = [
     youtubeVideos: [
       { id: "fWfsbL2ulj8", title: "Boxe — Shadow Boxing 101" },
       { id: "m7ryD1l_5qM", title: "Boxe — Footwork de Boxe" },
+      { id: "5PTEq3uoW0M", title: "PT-BR — Sombra de Boxe (Shadow Boxing)" },
+      { id: "uLJ6uVdZzlo", title: "PT-BR — Aula de Sombra Direcionada" },
+      { id: "Os_7UGTaNEs", title: "PT-BR — Como aprender boxe em casa" },
     ],
   },
   {
@@ -53,6 +56,8 @@ export const TRAINING_MODULES: TrainingModule[] = [
     youtubeTitle: "Muay Thai — How To Low Kick",
     youtubeVideos: [
       { id: "SzvumAd30H8", title: "Muay Thai — How To Low Kick" },
+      { id: "eF1t9em_gug", title: "PT-BR — Base, guarda e ritmo no Muay Thai" },
+      { id: "eJjElxBf2Ts", title: "PT-BR — Chute circular no Muay Thai e Kickboxing" },
     ],
   },
   {
@@ -70,6 +75,8 @@ export const TRAINING_MODULES: TrainingModule[] = [
     youtubeTitle: "Kickboxing — Checking Low Kicks",
     youtubeVideos: [
       { id: "kCva31o4cdI", title: "Kickboxing — Checking Low Kicks" },
+      { id: "z2Ikr9_bVHI", title: "PT-BR — Guia básico de Kickboxing" },
+      { id: "tPup7PocFBU", title: "PT-BR — Low kick para Kickboxing e MMA" },
     ],
   },
   {
@@ -88,6 +95,9 @@ export const TRAINING_MODULES: TrainingModule[] = [
     youtubeVideos: [
       { id: "Ucvb4-YbnIU", title: "Sanda — Wushu Sanda Kickboxing Tutorial" },
       { id: "O0rgVR46UOg", title: "Sanda — The Sanda Sidekick" },
+      { id: "qv2UGQq--NQ", title: "PT-BR — Como aplicar uma tesoura no Sanda" },
+      { id: "YVHU4bWyZxo", title: "PT-BR — Aula de Boxe Chinês, luta e defesa pessoal" },
+      { id: "Wuqu4XRBFxM", title: "PT-BR — Sanda ou Sandá?" },
     ],
   },
   {
@@ -105,6 +115,8 @@ export const TRAINING_MODULES: TrainingModule[] = [
     youtubeTitle: "Wrestling para MMA — Sprawl Solo Drill",
     youtubeVideos: [
       { id: "YyA0JAnK5l8", title: "Wrestling para MMA — Sprawl Solo Drill" },
+      { id: "3CFY47UsWvA", title: "PT-BR — Sprawl, defesa de queda" },
+      { id: "uxyFTPz1Go4", title: "PT-BR — Double Leg e Sprawl com drills" },
     ],
   },
   {
@@ -123,6 +135,9 @@ export const TRAINING_MODULES: TrainingModule[] = [
     youtubeVideos: [
       { id: "kd6tg6wS1_A", title: "BJJ — Warm-ups and Solo Drills" },
       { id: "w_0fqd8aQco", title: "BJJ — How to Shrimp" },
+      { id: "u7Nxtxv-Gt0", title: "PT-BR — Fuga de quadril ou camarão" },
+      { id: "tNyHVHsu-XQ", title: "PT-BR — 31 Solo Drills de Jiu-Jitsu" },
+      { id: "t143Umvv4Os", title: "PT-BR — 16 exercícios de Jiu-Jitsu em casa" },
     ],
   },
   {
@@ -141,6 +156,9 @@ export const TRAINING_MODULES: TrainingModule[] = [
     youtubeVideos: [
       { id: "Guw2-FSEaCI", title: "Krav Maga — 5 Minute Fitness Drill" },
       { id: "imqRTaTbTAc", title: "Krav Maga e MMA — Basic Footwork" },
+      { id: "cA4NuTgWTRo", title: "PT-BR — Krav Maga para iniciante" },
+      { id: "VOpFEVYoHhs", title: "PT-BR — Krav Magá online e em casa" },
+      { id: "6TVkRNcv-sA", title: "PT-BR — Como é uma aula de Krav Maga" },
     ],
   },
   {
@@ -158,6 +176,9 @@ export const TRAINING_MODULES: TrainingModule[] = [
     youtubeTitle: "MMA Integrado — 15 Minute MMA Shadowboxing Workout",
     youtubeVideos: [
       { id: "MrzGlecbLxU", title: "MMA Integrado — 15 Minute MMA Shadowboxing Workout" },
+      { id: "fyxbq0FvarA", title: "PT-BR — Aula técnica de MMA com defesa de queda" },
+      { id: "VdErHis52us", title: "PT-BR — Treino em casa com boxe, muay thai e kickboxing" },
+      { id: "cWmgOSFe5Ew", title: "PT-BR — Treino de sombra para luta em pé" },
     ],
   },
 ];
