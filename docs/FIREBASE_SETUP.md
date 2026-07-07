@@ -1,23 +1,30 @@
 # Firebase para contas reais
 
-O site ja esta preparado para sincronizar conta, XP, progresso, evolucao e combos estudados pela nuvem. Para ativar, configure um projeto Firebase na conta `dyegocodigodeluta@gmail.com`.
+O site ja esta configurado para sincronizar conta, XP, progresso, evolucao e combos estudados pela nuvem.
 
-## 1. Criar projeto
+Projeto Firebase criado:
 
-1. Acesse https://console.firebase.google.com/
-2. Crie um projeto para o Codigo de Luta.
-3. Adicione um app Web e copie a configuracao.
+```text
+codigo-de-luta-premium
+```
+
+E-mail de suporte e liberacao:
+
+```text
+dyegocodigodeluta@gmail.com
+```
+
+## 1. Projeto Firebase
+
+Projeto criado no Firebase Console com app Web `codigo-de-luta-premium`.
 
 ## 2. Ativar login
 
-1. No Firebase, abra Authentication.
-2. Em Sign-in method, ative Email/Password.
+Authentication foi ativado com Email/Password.
 
 ## 3. Ativar banco
 
-1. Abra Firestore Database.
-2. Crie o banco em Production mode.
-3. Em Rules, cole o conteudo de `firebase/firestore.rules` e publique.
+Firestore foi criado em Production mode, com as regras de `firebase/firestore.rules` publicadas.
 
 ## 4. Liberar e-mails
 
@@ -37,25 +44,11 @@ Campos:
 }
 ```
 
-Repita para cada aluno liberado.
+Repita para cada aluno liberado. Para bloquear alguem depois, remova o documento do e-mail ou altere `approved` para `false`.
 
 ## 5. Ativar o site
 
-Edite `public/firebase-config.json`, coloque `enabled: true` e preencha com a configuracao do seu app Web Firebase:
-
-```json
-{
-  "enabled": true,
-  "apiKey": "SUA_API_KEY",
-  "authDomain": "SEU_PROJETO.firebaseapp.com",
-  "projectId": "SEU_PROJETO",
-  "storageBucket": "SEU_PROJETO.appspot.com",
-  "messagingSenderId": "000000000000",
-  "appId": "1:000000000000:web:xxxxxxxx"
-}
-```
-
-Depois publique no GitHub Pages.
+`public/firebase-config.json` ja esta com `enabled: true`. Depois de qualquer mudanca nesse arquivo, publique no GitHub Pages.
 
 ## Observacao importante
 

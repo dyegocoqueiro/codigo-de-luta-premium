@@ -423,7 +423,11 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
 
           <div className="mt-3 text-center text-xs">
             <a
-              href={buildSupportMailto("Liberação de acesso ao Código de Luta", ["Quero liberar meu e-mail para criar conta."])}
+              href={buildSupportMailto("Liberação de acesso ao Código de Luta", [
+                "Quero liberar meu e-mail para criar conta.",
+                `E-mail para liberar: ${email.trim() || "(preencha seu e-mail acima)"}`,
+                phone.trim() ? `Telefone/WhatsApp: ${phone.trim()}` : "",
+              ].filter(Boolean))}
               className="font-bold transition-colors hover:opacity-80"
               style={{ color: "#f8c54d" }}
             >

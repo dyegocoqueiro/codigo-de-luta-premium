@@ -8,7 +8,8 @@ service cloud.firestore {
 
     function approved() {
       return signedIn()
-        && exists(/databases/$(database)/documents/approvedEmails/$(request.auth.token.email));
+        && exists(/databases/$(database)/documents/approvedEmails/$(request.auth.token.email))
+        && get(/databases/$(database)/documents/approvedEmails/$(request.auth.token.email)).data.approved != false;
     }
 
     match /approvedEmails/{email} {

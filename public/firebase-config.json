@@ -1,9 +1,9 @@
 {
-  "enabled": false,
-  "apiKey": "",
-  "authDomain": "",
-  "projectId": "",
-  "storageBucket": "",
-  "messagingSenderId": "",
-  "appId": ""
+  "enabled": true,
+  "apiKey": "AIzaSyD5NXEt2Jlk8xiedCznesuaIK6_pSRM8mU",
+  "authDomain": "codigo-de-luta-premium.firebaseapp.com",
+  "projectId": "codigo-de-luta-premium",
+  "storageBucket": "codigo-de-luta-premium.firebasestorage.app",
+  "messagingSenderId": "140669701452",
+  "appId": "1:140669701452:web:02acc14693c6d6e93313e9"
 }
