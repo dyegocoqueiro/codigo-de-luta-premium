@@ -36,7 +36,7 @@ Quando alguem tenta criar conta sem liberacao, o site cria um pedido pendente em
 accessRequests/EMAIL_DA_PESSOA
 ```
 
-O pedido tambem tenta enviar um aviso para `dyegocodigodeluta@gmail.com`. Se o e-mail automatico falhar, use `accessRequests` como fonte confiavel.
+O pedido tambem tenta enviar um aviso para `dyegocodigodeluta@gmail.com`. O FormSubmit pode enviar primeiro um e-mail de ativacao com o link `Activate Form`; clique nesse link uma vez para liberar os proximos avisos automaticos. Se o e-mail automatico falhar, use `accessRequests` como fonte confiavel.
 
 Para liberar alguem, crie um documento com o ID igual ao e-mail em minusculo:
 
