@@ -168,7 +168,7 @@ async function saveAccessRequest(user: User, profile: {
 
   if (!email) return;
 
-  await user.getIdToken(true);
+  await user.getIdToken().catch(() => undefined);
 
   const request = {
     email,
@@ -224,13 +224,16 @@ export async function registerCloudAccount(params: {
       await updateProfile(user, { displayName: name });
     }
 
-    await saveAccessRequest(user, {
-      name,
-      phone,
-      source: "signup",
-      page: params.page,
-    });
-    await signOut(auth);
+    try {
+      await saveAccessRequest(user, {
+        name,
+        phone,
+        source: "signup",
+        page: params.page,
+      });
+    } finally {
+      await signOut(auth);
+    }
 
     return {
       status: "pending",
@@ -261,11 +264,14 @@ export async function loginCloudAccount(email: string, password: string): Promis
   const credential = await signInWithEmailAndPassword(auth, normalizedEmail, password);
 
   if (!(await isEmailApproved(normalizedEmail))) {
-    await saveAccessRequest(credential.user, {
-      source: "login",
-      page: window.location.href,
-    });
-    await signOut(auth);
+    try {
+      await saveAccessRequest(credential.user, {
+        source: "login",
+        page: window.location.href,
+      });
+    } finally {
+      await signOut(auth);
+    }
     throw new Error(`Sua conta já foi criada e está aguardando liberação. O prazo é de até 24h. Dúvidas: ${SUPPORT_EMAIL}.`);
   }
 
@@ -277,7 +283,7 @@ export async function subscribeCloudAuth(callback: (auth: AuthResult | null) => 
   const context = await getCloudContext();
   if (!context) return () => {};
 
-  const { getAuth, onAuthStateChanged, signOut } = await getAuthApi();
+  const { getAuth, onAuthStateChanged } = await getAuthApi();
   const auth = getAuth(context.app);
   return onAuthStateChanged(auth, async (user) => {
     if (!user?.email) {
@@ -287,7 +293,6 @@ export async function subscribeCloudAuth(callback: (auth: AuthResult | null) => 
 
     try {
       if (!(await isEmailApproved(user.email))) {
-        await signOut(auth);
         callback(null);
         return;
       }
