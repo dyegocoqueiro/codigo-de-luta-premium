@@ -168,6 +168,8 @@ async function saveAccessRequest(user: User, profile: {
 
   if (!email) return;
 
+  await user.getIdToken(true);
+
   const request = {
     email,
     uid: user.uid,
