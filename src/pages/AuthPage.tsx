@@ -75,6 +75,42 @@ function friendlyAuthError(error: unknown) {
   return message || "Não foi possível acessar sua conta. Tente novamente.";
 }
 
+function isPendingAccessResult(result: unknown): result is { status: "pending"; email: string; message: string } {
+  return Boolean(result && typeof result === "object" && "status" in result && result.status === "pending");
+}
+
+function isPendingAccessMessage(message: string) {
+  return message.includes("aguardando liberação") || message.includes("liberação em até 24h");
+}
+
+async function sendAccessRequestEmail(params: {
+  email: string;
+  name: string;
+  phone: string;
+}) {
+  try {
+    await fetch(`https://formsubmit.co/ajax/${SUPPORT_EMAIL}`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        _subject: "Novo pedido de liberação - Código de Luta",
+        _template: "table",
+        _captcha: "false",
+        nome: params.name.trim() || "Não informado",
+        email: params.email,
+        telefone: params.phone.trim() || "Não informado",
+        mensagem: `A pessoa criou uma conta e está aguardando liberação no Código de Luta. Para liberar, adicione no Firestore o documento approvedEmails/${params.email} com approved = true.`,
+        pagina: window.location.href,
+      }),
+    });
+  } catch {
+    // O pedido principal fica salvo no Firestore; o e-mail é apenas um aviso extra.
+  }
+}
+
 export default function AuthPage({ onAuth }: AuthPageProps) {
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
@@ -84,11 +120,13 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [showPass, setShowPass] = useState(false);
 
   const switchMode = (m: Mode) => {
     setMode(m);
     setError("");
+    setSuccess("");
     setPassword("");
     setConfirm("");
   };
@@ -96,6 +134,7 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
 
     if (mode === "register") {
       if (password !== confirm) {
@@ -120,8 +159,21 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
               password,
               name,
               phone,
+              page: window.location.href,
             })
           : await loginCloudAccount(normalizedEmail, password);
+
+        if (isPendingAccessResult(authResult)) {
+          await sendAccessRequestEmail({
+            email: authResult.email,
+            name,
+            phone,
+          });
+          setSuccess(authResult.message);
+          setPassword("");
+          setConfirm("");
+          return;
+        }
 
         localStorage.setItem("cl_auth_token", authResult.token);
         localStorage.setItem("cl_auth_user", JSON.stringify(authResult.user));
@@ -136,7 +188,14 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
       if (mode === "register") {
         const approvedEmails = await loadApprovedEmails();
         if (!approvedEmails.includes(normalizedEmail)) {
-          setError(`Este e-mail ainda não foi liberado. Peça liberação em ${SUPPORT_EMAIL}.`);
+          await sendAccessRequestEmail({
+            email: normalizedEmail,
+            name,
+            phone,
+          });
+          setSuccess("Conta criada com sucesso. Agora é só aguardar a liberação em até 24h.");
+          setPassword("");
+          setConfirm("");
           return;
         }
 
@@ -170,7 +229,14 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
       localStorage.setItem("cl_auth_user", JSON.stringify(user));
       onAuth(token, user);
     } catch (error) {
-      setError(friendlyAuthError(error));
+      const message = friendlyAuthError(error);
+      if (isPendingAccessMessage(message)) {
+        setSuccess(message);
+        setPassword("");
+        setConfirm("");
+      } else {
+        setError(message);
+      }
     } finally {
       setLoading(false);
     }
@@ -364,6 +430,15 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
               </div>
             )}
 
+            {success && (
+              <div
+                className="px-4 py-3 rounded-xl text-sm"
+                style={{ background: "rgba(22,163,74,0.12)", border: "1px solid rgba(22,163,74,0.35)", color: "#86efac" }}
+              >
+                {success}
+              </div>
+            )}
+
             {error && (
               <div
                 className="px-4 py-3 rounded-xl text-sm"
@@ -386,7 +461,7 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
             >
               {loading
                 ? "Aguarde..."
-                : mode === "login" ? "Entrar no Sistema" : "Criar Conta e Entrar"
+                : mode === "login" ? "Entrar no Sistema" : "Criar Conta"
               }
             </button>
           </form>

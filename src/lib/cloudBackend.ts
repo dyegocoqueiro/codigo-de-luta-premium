@@ -23,6 +23,12 @@ interface AuthResult {
   user: StoredAuthUser;
 }
 
+interface PendingAccessResult {
+  status: "pending";
+  email: string;
+  message: string;
+}
+
 let configPromise: Promise<FirebaseRuntimeConfig> | null = null;
 let contextPromise: Promise<CloudContext | null> | null = null;
 let appApiPromise: Promise<typeof import("firebase/app")> | null = null;
@@ -150,6 +156,37 @@ async function ensureInitialUserDocs(user: User, profile: Partial<StoredAuthUser
   await setDoc(doc(db, "users", user.uid, "app", "combos"), { value: [], updatedAt: serverTimestamp() }, { merge: true });
 }
 
+async function saveAccessRequest(user: User, profile: {
+  name?: string;
+  phone?: string;
+  source?: string;
+  page?: string;
+}) {
+  const { db } = await requireCloudContext();
+  const { doc, serverTimestamp, setDoc } = await getFirestoreApi();
+  const email = normalizeEmail(user.email || "");
+
+  if (!email) return;
+
+  const request = {
+    email,
+    uid: user.uid,
+    source: profile.source || "signup",
+    page: profile.page || "",
+    status: "pending",
+    requestedAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    ...(profile.name !== undefined ? { name: profile.name.trim() || null } : {}),
+    ...(profile.phone !== undefined ? { phone: profile.phone.trim() || null } : {}),
+  };
+
+  await setDoc(
+    doc(db, "accessRequests", email),
+    request,
+    { merge: true },
+  );
+}
+
 export async function isCloudConfigured() {
   return Boolean(await getCloudContext());
 }
@@ -159,16 +196,45 @@ export async function registerCloudAccount(params: {
   password: string;
   name?: string;
   phone?: string;
-}): Promise<AuthResult> {
+  page?: string;
+}): Promise<AuthResult | PendingAccessResult> {
   const { app } = await requireCloudContext();
-  const { createUserWithEmailAndPassword, getAuth, updateProfile } = await getAuthApi();
+  const { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut, updateProfile } = await getAuthApi();
   const auth = getAuth(app);
   const email = normalizeEmail(params.email);
   const name = params.name?.trim() || "";
   const phone = params.phone?.trim() || "";
 
   if (!(await isEmailApproved(email))) {
-    throw new Error(`Este e-mail ainda não foi liberado. Peça liberação em ${SUPPORT_EMAIL}.`);
+    let user: User;
+
+    try {
+      const credential = await createUserWithEmailAndPassword(auth, email, params.password);
+      user = credential.user;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "";
+      if (!message.includes("auth/email-already-in-use")) throw error;
+      const credential = await signInWithEmailAndPassword(auth, email, params.password);
+      user = credential.user;
+    }
+
+    if (name) {
+      await updateProfile(user, { displayName: name });
+    }
+
+    await saveAccessRequest(user, {
+      name,
+      phone,
+      source: "signup",
+      page: params.page,
+    });
+    await signOut(auth);
+
+    return {
+      status: "pending",
+      email,
+      message: "Conta criada com sucesso. Agora é só aguardar a liberação em até 24h.",
+    };
   }
 
   const credential = await createUserWithEmailAndPassword(auth, email, params.password);
@@ -193,8 +259,12 @@ export async function loginCloudAccount(email: string, password: string): Promis
   const credential = await signInWithEmailAndPassword(auth, normalizedEmail, password);
 
   if (!(await isEmailApproved(normalizedEmail))) {
+    await saveAccessRequest(credential.user, {
+      source: "login",
+      page: window.location.href,
+    });
     await signOut(auth);
-    throw new Error(`Este e-mail não está liberado para acessar o Código de Luta. Fale com ${SUPPORT_EMAIL}.`);
+    throw new Error(`Sua conta já foi criada e está aguardando liberação. O prazo é de até 24h. Dúvidas: ${SUPPORT_EMAIL}.`);
   }
 
   await ensureInitialUserDocs(credential.user, { email: normalizedEmail });

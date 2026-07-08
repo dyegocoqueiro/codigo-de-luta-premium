@@ -18,6 +18,27 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    match /accessRequests/{email} {
+      allow get: if signedIn() && request.auth.token.email == email;
+      allow list, delete: if false;
+      allow create, update: if signedIn()
+        && request.auth.token.email == email
+        && request.resource.data.email == email
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == "pending"
+        && request.resource.data.keys().hasOnly([
+          "email",
+          "uid",
+          "name",
+          "phone",
+          "source",
+          "page",
+          "status",
+          "requestedAt",
+          "updatedAt"
+        ]);
+    }
+
     match /users/{userId}/{document=**} {
       allow read, write: if approved() && request.auth.uid == userId;
     }

@@ -30,6 +30,14 @@ Firestore foi criado em Production mode, com as regras de `firebase/firestore.ru
 
 No Firestore, crie a colecao `approvedEmails`.
 
+Quando alguem tenta criar conta sem liberacao, o site cria um pedido pendente em:
+
+```text
+accessRequests/EMAIL_DA_PESSOA
+```
+
+O pedido tambem tenta enviar um aviso para `dyegocodigodeluta@gmail.com`. Se o e-mail automatico falhar, use `accessRequests` como fonte confiavel.
+
 Para liberar alguem, crie um documento com o ID igual ao e-mail em minusculo:
 
 ```text
