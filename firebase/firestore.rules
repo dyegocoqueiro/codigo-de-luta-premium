@@ -6,25 +6,37 @@ service cloud.firestore {
       return request.auth != null && request.auth.token.email is string;
     }
 
+    function owner() {
+      return signedIn() && request.auth.token.email == "dyegocodigodeluta@gmail.com";
+    }
+
     function approved() {
-      return signedIn()
-        && exists(/databases/$(database)/documents/approvedEmails/$(request.auth.token.email))
-        && get(/databases/$(database)/documents/approvedEmails/$(request.auth.token.email)).data.approved != false;
+      return owner()
+        || (signedIn()
+          && exists(/databases/$(database)/documents/approvedEmails/$(request.auth.token.email))
+          && get(/databases/$(database)/documents/approvedEmails/$(request.auth.token.email)).data.approved != false);
     }
 
     match /approvedEmails/{email} {
       allow get: if true;
-      allow list: if false;
-      allow write: if false;
+      allow list: if owner();
+      allow create, update: if owner()
+        && request.resource.data.email == email
+        && request.resource.data.approved == true;
+      allow delete: if owner();
     }
 
     match /accessRequests/{email} {
-      allow get: if signedIn() && resource.data.uid == request.auth.uid;
-      allow list, delete: if false;
-      allow create, update: if signedIn()
+      allow get: if owner() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow list, delete: if owner();
+      allow create: if signedIn()
         && request.resource.data.email == email
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.status == "pending";
+      allow update: if owner() || (signedIn()
+        && request.resource.data.email == email
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == "pending");
     }
 
     match /users/{userId}/{document=**} {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import logoImg from "@assets/codigo-luta-logo_1782758047742.png";
-import { buildSupportMailto } from "../lib/support";
+import { buildSupportMailto, isOwnerEmail } from "../lib/support";
 
 interface AuthUser {
   id: number | string;
@@ -46,6 +46,7 @@ export default function Navbar({ musicPlaying, onMusicToggle, user, onLogout }: 
   };
 
   const displayName = user?.name || user?.email?.split("@")[0] || "Lutador";
+  const owner = isOwnerEmail(user?.email);
 
   return (
     <header
@@ -94,6 +95,16 @@ export default function Navbar({ musicPlaying, onMusicToggle, user, onLogout }: 
                 </Link>
               )
             ))}
+            {owner && (
+              <Link
+                href="/admin"
+                className={`px-3 py-1.5 text-sm transition-colors rounded-lg hover:bg-white/5 ${
+                  location === "/admin" ? "text-white font-semibold" : "text-gray-300 hover:text-white"
+                }`}
+              >
+                Pedidos
+              </Link>
+            )}
           </nav>
 
           <div className="flex items-center gap-2">
@@ -145,6 +156,13 @@ export default function Navbar({ musicPlaying, onMusicToggle, user, onLogout }: 
                         <div className="text-xs mt-0.5 truncate" style={{ color: "#aab5c4" }}>{user.email}</div>
                       </div>
                       <div className="p-2">
+                        {owner && (
+                          <Link href="/admin" onClick={() => setUserMenuOpen(false)}>
+                            <div className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm cursor-pointer hover:bg-white/5 transition-colors" style={{ color: "#86efac" }}>
+                              <span>OK</span> Pedidos de acesso
+                            </div>
+                          </Link>
+                        )}
                         <Link href="/evolucao" onClick={() => setUserMenuOpen(false)}>
                           <div className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm cursor-pointer hover:bg-white/5 transition-colors" style={{ color: "#aab5c4" }}>
                             <span>📊</span> Minha Evolução
@@ -211,6 +229,16 @@ export default function Navbar({ musicPlaying, onMusicToggle, user, onLogout }: 
                 </Link>
               )
             ))}
+            {owner && (
+              <Link
+                href="/admin"
+                onClick={() => setMenuOpen(false)}
+                className="px-3 py-2 text-sm rounded-lg hover:bg-white/5"
+                style={{ color: "#86efac" }}
+              >
+                OK Pedidos de acesso
+              </Link>
+            )}
             {user && (
               <>
               <a

@@ -1,7 +1,7 @@
 import type { FirebaseApp } from "firebase/app";
 import type { User } from "firebase/auth";
 import type { Firestore } from "firebase/firestore";
-import { SUPPORT_EMAIL, type StoredAuthUser } from "./support";
+import { isOwnerEmail, SUPPORT_EMAIL, type StoredAuthUser } from "./support";
 
 interface FirebaseRuntimeConfig {
   enabled?: boolean;
@@ -27,6 +27,20 @@ interface PendingAccessResult {
   status: "pending";
   email: string;
   message: string;
+}
+
+export interface AccessRequest {
+  email: string;
+  uid: string;
+  name: string | null;
+  phone: string | null;
+  source: string;
+  page: string;
+  status: "pending" | "approved";
+  requestedAt: number;
+  updatedAt: number;
+  approvedAt?: number;
+  approvedBy?: string;
 }
 
 let configPromise: Promise<FirebaseRuntimeConfig> | null = null;
@@ -91,6 +105,8 @@ async function requireCloudContext() {
 }
 
 async function isEmailApproved(email: string) {
+  if (isOwnerEmail(email)) return true;
+
   const { db } = await requireCloudContext();
   const { doc, getDoc } = await getFirestoreApi();
   const normalizedEmail = normalizeEmail(email);
@@ -242,7 +258,15 @@ export async function registerCloudAccount(params: {
     };
   }
 
-  const credential = await createUserWithEmailAndPassword(auth, email, params.password);
+  let credential;
+  try {
+    credential = await createUserWithEmailAndPassword(auth, email, params.password);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (!message.includes("auth/email-already-in-use")) throw error;
+    credential = await signInWithEmailAndPassword(auth, email, params.password);
+  }
+
   if (name) {
     await updateProfile(credential.user, { displayName: name });
   }
@@ -308,6 +332,83 @@ export async function signOutCloudAccount() {
   if (!context) return;
   const { getAuth, signOut } = await getAuthApi();
   await signOut(getAuth(context.app));
+}
+
+function timestampToMillis(value: unknown) {
+  if (!value) return 0;
+  if (typeof value === "object" && "toMillis" in value && typeof value.toMillis === "function") {
+    return value.toMillis();
+  }
+  return 0;
+}
+
+function accessRequestFromData(data: Record<string, unknown>, fallbackEmail: string): AccessRequest {
+  return {
+    email: normalizeEmail(String(data.email || fallbackEmail)),
+    uid: String(data.uid || ""),
+    name: data.name ? String(data.name) : null,
+    phone: data.phone ? String(data.phone) : null,
+    source: String(data.source || "signup"),
+    page: String(data.page || ""),
+    status: data.status === "approved" ? "approved" : "pending",
+    requestedAt: timestampToMillis(data.requestedAt),
+    updatedAt: timestampToMillis(data.updatedAt),
+    approvedAt: timestampToMillis(data.approvedAt) || undefined,
+    approvedBy: data.approvedBy ? String(data.approvedBy) : undefined,
+  };
+}
+
+async function requireOwnerUser() {
+  const current = await getCurrentCloudUser();
+  if (!current?.user.email || !isOwnerEmail(current.user.email)) {
+    throw new Error("Apenas o dono do Código de Luta pode confirmar acessos.");
+  }
+  return current;
+}
+
+export async function loadAccessRequests() {
+  const current = await requireOwnerUser();
+  const { collection, getDocs } = await getFirestoreApi();
+  const snapshot = await getDocs(collection(current.context.db, "accessRequests"));
+
+  return snapshot.docs
+    .map((item) => accessRequestFromData(item.data(), item.id))
+    .sort((a, b) => {
+      if (a.status !== b.status) return a.status === "pending" ? -1 : 1;
+      return b.requestedAt - a.requestedAt;
+    });
+}
+
+export async function approveAccessRequest(email: string) {
+  const current = await requireOwnerUser();
+  const { doc, serverTimestamp, writeBatch } = await getFirestoreApi();
+  const normalizedEmail = normalizeEmail(email);
+  const approvedAt = serverTimestamp();
+  const approvedBy = normalizeEmail(current.user.email || SUPPORT_EMAIL);
+  const batch = writeBatch(current.context.db);
+
+  batch.set(
+    doc(current.context.db, "approvedEmails", normalizedEmail),
+    {
+      email: normalizedEmail,
+      approved: true,
+      approvedAt,
+      approvedBy,
+    },
+    { merge: true },
+  );
+
+  batch.update(
+    doc(current.context.db, "accessRequests", normalizedEmail),
+    {
+      status: "approved",
+      approvedAt,
+      approvedBy,
+      updatedAt: serverTimestamp(),
+    },
+  );
+
+  await batch.commit();
 }
 
 async function getCurrentCloudUser() {

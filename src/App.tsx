@@ -8,6 +8,7 @@ import Home from "@/pages/Home";
 import CombosPage from "@/pages/CombosPage";
 import EvolutionPage from "@/pages/EvolutionPage";
 import AuthPage from "@/pages/AuthPage";
+import AdminPage from "@/pages/AdminPage";
 import Navbar from "@/components/Navbar";
 import ParticleCanvas from "@/components/ParticleCanvas";
 import ErrorReporter from "@/components/ErrorReporter";
@@ -151,6 +152,7 @@ function AppShell() {
       <SupportButton />
       <Switch>
         <Route path="/" component={Home} />
+        <Route path="/admin" component={AdminPage} />
         <Route path="/combos" component={CombosPage} />
         <Route path="/evolucao" component={EvolutionPage} />
         <Route component={NotFound} />

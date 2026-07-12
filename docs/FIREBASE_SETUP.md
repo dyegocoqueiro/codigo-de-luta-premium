@@ -28,8 +28,6 @@ Firestore foi criado em Production mode, com as regras de `firebase/firestore.ru
 
 ## 4. Liberar e-mails
 
-No Firestore, crie a colecao `approvedEmails`.
-
 Quando alguem tenta criar conta sem liberacao, o site cria um pedido pendente em:
 
 ```text
@@ -38,21 +36,19 @@ accessRequests/EMAIL_DA_PESSOA
 
 O pedido tambem tenta enviar um aviso para `dyegocodigodeluta@gmail.com`. O FormSubmit pode enviar primeiro um e-mail de ativacao com o link `Activate Form`; clique nesse link uma vez para liberar os proximos avisos automaticos. Se o e-mail automatico falhar, use `accessRequests` como fonte confiavel.
 
-Para liberar alguem, crie um documento com o ID igual ao e-mail em minusculo:
+Para liberar alguem, entre no site com o e-mail do dono:
 
 ```text
-approvedEmails/dyegocodigodeluta@gmail.com
+dyegocodigodeluta@gmail.com
 ```
 
-Campos:
+Depois abra:
 
-```json
-{
-  "approved": true
-}
+```text
+/admin
 ```
 
-Repita para cada aluno liberado. Para bloquear alguem depois, remova o documento do e-mail ou altere `approved` para `false`.
+Clique em `Confirmar` no pedido da pessoa. O site cria automaticamente o documento em `approvedEmails` e a pessoa ja consegue entrar.
 
 ## 5. Ativar o site
 

@@ -1,4 +1,5 @@
 export const SUPPORT_EMAIL = "dyegocodigodeluta@gmail.com";
+export const OWNER_EMAIL = SUPPORT_EMAIL;
 export const AUTH_USER_KEY = "cl_auth_user";
 
 export interface StoredAuthUser {
@@ -23,6 +24,10 @@ function safeEmailKey(email: string) {
 
 export function userScopedStorageKey(baseKey: string, user = getStoredAuthUser()) {
   return user?.email ? `${baseKey}:${safeEmailKey(user.email)}` : baseKey;
+}
+
+export function isOwnerEmail(email?: string | null) {
+  return Boolean(email && email.trim().toLowerCase() === OWNER_EMAIL);
 }
 
 export function buildSupportMailto(subject: string, bodyLines: string[] = []) {

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import logoImg from "@assets/codigo-luta-logo_1782758047742.png";
 import muayThaiImg from "@assets/muay-thai-legend-bg_1782758047742.png";
-import { SUPPORT_EMAIL, buildSupportMailto } from "../lib/support";
+import { SUPPORT_EMAIL, buildSupportMailto, isOwnerEmail } from "../lib/support";
 import { isCloudConfigured, loginCloudAccount, registerCloudAccount } from "../lib/cloudBackend";
 
 interface AuthUser {
@@ -88,6 +88,9 @@ async function sendAccessRequestEmail(params: {
   name: string;
   phone: string;
 }) {
+  const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const approveUrl = `${window.location.origin}${basePath}/admin?approve=${encodeURIComponent(params.email)}`;
+
   try {
     await fetch(`https://formsubmit.co/ajax/${SUPPORT_EMAIL}`, {
       method: "POST",
@@ -102,7 +105,8 @@ async function sendAccessRequestEmail(params: {
         nome: params.name.trim() || "Não informado",
         email: params.email,
         telefone: params.phone.trim() || "Não informado",
-        mensagem: `A pessoa criou uma conta e está aguardando liberação no Código de Luta. Para liberar, adicione no Firestore o documento approvedEmails/${params.email} com approved = true.`,
+        mensagem: "A pessoa criou uma conta e esta aguardando liberacao no Codigo de Luta. Abra o link abaixo, entre com o e-mail do dono e clique em Confirmar.",
+        confirmar_acesso: approveUrl,
         pagina: window.location.href,
       }),
     });
@@ -187,7 +191,7 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
 
       if (mode === "register") {
         const approvedEmails = await loadApprovedEmails();
-        if (!approvedEmails.includes(normalizedEmail)) {
+        if (!approvedEmails.includes(normalizedEmail) && !isOwnerEmail(normalizedEmail)) {
           await sendAccessRequestEmail({
             email: normalizedEmail,
             name,
