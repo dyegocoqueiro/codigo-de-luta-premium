@@ -15,6 +15,7 @@ import ErrorReporter from "@/components/ErrorReporter";
 import SupportButton from "@/components/SupportButton";
 import FloatingKodeButton from "@/components/FloatingKodeButton";
 import { signOutCloudAccount, subscribeCloudAuth } from "@/lib/cloudBackend";
+import { isOwnerEmail } from "@/lib/support";
 import bgMusic from "@assets/NEFFEX_-_Fightback_(INSTRUMENTAL)_-_IXORBEATZZ_(youtube)_1782758047742.mp3";
 
 const queryClient = new QueryClient({
@@ -126,7 +127,8 @@ function AppShell() {
   };
 
   const handleAuth = (token: string, user: AuthUser) => {
-    setLocation("/");
+    const isApprovalLink = window.location.pathname.includes("/admin") && window.location.search.includes("approve=");
+    setLocation(isApprovalLink && isOwnerEmail(user.email) ? `/admin${window.location.search}` : "/");
     window.scrollTo({ top: 0, behavior: "instant" });
     setAuth({ token, user });
   };

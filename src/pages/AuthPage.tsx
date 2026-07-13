@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from "react";
 import { LockKeyhole, ShieldCheck, UserCog, X } from "lucide-react";
-import { useLocation } from "wouter";
 import logoImg from "@assets/codigo-luta-logo_1782758047742.png";
 import muayThaiImg from "@assets/muay-thai-legend-bg_1782758047742.png";
 import { SUPPORT_EMAIL, buildSupportMailto, isOwnerEmail } from "../lib/support";
@@ -120,7 +119,6 @@ async function sendAccessRequestEmail(params: {
 }
 
 export default function AuthPage({ onAuth }: AuthPageProps) {
-  const [, setLocation] = useLocation();
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -176,7 +174,6 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
       localStorage.setItem("cl_auth_token", authResult.token);
       localStorage.setItem("cl_auth_user", JSON.stringify(authResult.user));
 
-      setLocation("/");
       onAuth(authResult.token, authResult.user);
     } catch (err) {
       setAdminError(err instanceof Error ? err.message : "Nao foi possivel entrar como ADM.");
