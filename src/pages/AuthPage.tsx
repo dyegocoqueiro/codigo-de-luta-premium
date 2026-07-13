@@ -104,14 +104,14 @@ async function sendAccessRequestEmail(params: {
       },
       body: JSON.stringify({
         _subject: "Novo pedido de liberação - Código de Luta",
-        _template: "table",
+        _template: "box",
         _captcha: "false",
-        nome: params.name.trim() || "Não informado",
-        email: params.email,
-        telefone: params.phone.trim() || "Não informado",
-        mensagem: "A pessoa criou uma conta e esta aguardando liberacao no Codigo de Luta. Abra o link abaixo, entre com o e-mail do dono e clique em Confirmar.",
-        confirmar_acesso: approveUrl,
-        pagina: window.location.href,
+        "CONFIRMAR ACESSO - CLIQUE AQUI": approveUrl,
+        "Nome": params.name.trim() || "Não informado",
+        "E-mail": params.email,
+        "Telefone": params.phone.trim() || "Não informado",
+        "Mensagem": "Abra o link CONFIRMAR ACESSO, entre como ADM e clique no botao Confirmar.",
+        "Pagina": window.location.href,
       }),
     });
   } catch {
