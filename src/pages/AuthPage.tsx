@@ -1,8 +1,10 @@
 import { useState, type FormEvent } from "react";
+import { LockKeyhole, ShieldCheck, UserCog, X } from "lucide-react";
+import { useLocation } from "wouter";
 import logoImg from "@assets/codigo-luta-logo_1782758047742.png";
 import muayThaiImg from "@assets/muay-thai-legend-bg_1782758047742.png";
 import { SUPPORT_EMAIL, buildSupportMailto, isOwnerEmail } from "../lib/support";
-import { isCloudConfigured, loginCloudAccount, registerCloudAccount } from "../lib/cloudBackend";
+import { isCloudConfigured, loginCloudAccount, loginOwnerCloudAccount, registerCloudAccount } from "../lib/cloudBackend";
 
 interface AuthUser {
   id: number | string;
@@ -21,6 +23,8 @@ interface AuthPageProps {
 
 type Mode = "login" | "register";
 const LOCAL_USERS_KEY = "cl_auth_users";
+const ADMIN_NAME = "Dyego codigo";
+const ADMIN_PASSWORD = "19840312";
 
 function loadUsers(): StoredUser[] {
   try {
@@ -116,12 +120,18 @@ async function sendAccessRequestEmail(params: {
 }
 
 export default function AuthPage({ onAuth }: AuthPageProps) {
+  const [, setLocation] = useLocation();
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [adminOpen, setAdminOpen] = useState(false);
+  const [adminName, setAdminName] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [adminError, setAdminError] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -133,6 +143,49 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
     setSuccess("");
     setPassword("");
     setConfirm("");
+  };
+
+  const handleAdminSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setAdminError("");
+
+    if (adminName.trim() !== ADMIN_NAME || adminPassword !== ADMIN_PASSWORD) {
+      setAdminError("Nome ou senha ADM incorretos.");
+      return;
+    }
+
+    setAdminLoading(true);
+    try {
+      const cloudReady = await isCloudConfigured();
+      let authResult;
+
+      if (cloudReady) {
+        authResult = await loginOwnerCloudAccount(adminPassword);
+      } else {
+        authResult = {
+          token: createToken(),
+          user: {
+            id: "owner-local",
+            email: SUPPORT_EMAIL,
+            name: ADMIN_NAME,
+            phone: null,
+          },
+        };
+      }
+
+      localStorage.setItem("cl_auth_token", authResult.token);
+      localStorage.setItem("cl_auth_user", JSON.stringify(authResult.user));
+
+      if (!window.location.pathname.includes("/admin")) {
+        setLocation("/admin");
+      }
+
+      onAuth(authResult.token, authResult.user);
+    } catch (err) {
+      setAdminError(err instanceof Error ? err.message : "Nao foi possivel entrar como ADM.");
+    } finally {
+      setAdminLoading(false);
+    }
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -261,6 +314,132 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
           style={{ opacity: 0.07, filter: "saturate(1.2)", mixBlendMode: "screen" }}
         />
       </div>
+
+      <button
+        type="button"
+        onClick={() => {
+          setAdminOpen(true);
+          setAdminError("");
+        }}
+        aria-label="Acesso ADM"
+        title="Acesso ADM"
+        className="absolute left-5 bottom-5 w-14 h-14 rounded-full flex items-center justify-center transition-all"
+        style={{
+          background: "linear-gradient(135deg, #d50f32, #7f1d1d)",
+          border: "1px solid rgba(255,255,255,0.18)",
+          color: "#fff",
+          boxShadow: "0 0 28px rgba(213,15,50,0.45)",
+          zIndex: 230,
+        }}
+      >
+        <UserCog size={25} />
+      </button>
+
+      {adminOpen && (
+        <div
+          className="absolute inset-0 flex items-center justify-center p-4"
+          style={{ background: "rgba(0,0,0,0.68)", zIndex: 240 }}
+        >
+          <form
+            onSubmit={handleAdminSubmit}
+            className="relative w-full max-w-sm p-6"
+            style={{
+              background: "rgba(12,16,24,0.98)",
+              border: "1px solid rgba(134,239,172,0.25)",
+              borderRadius: "18px",
+              boxShadow: "0 24px 80px rgba(0,0,0,0.65)",
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setAdminOpen(false)}
+              aria-label="Fechar acesso ADM"
+              className="absolute right-3 top-3 w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ background: "rgba(255,255,255,0.06)", color: "#aab5c4", border: "1px solid rgba(255,255,255,0.08)" }}
+            >
+              <X size={16} />
+            </button>
+
+            <div className="flex items-center gap-3 mb-6">
+              <div
+                className="w-11 h-11 rounded-xl flex items-center justify-center"
+                style={{ background: "rgba(22,163,74,0.13)", border: "1px solid rgba(134,239,172,0.3)", color: "#86efac" }}
+              >
+                <ShieldCheck size={23} />
+              </div>
+              <div>
+                <div className="text-lg font-black text-white">Acesso ADM</div>
+                <div className="text-xs" style={{ color: "#aab5c4" }}>Codigo de Luta</div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="flex items-center gap-2 text-xs font-bold mb-1.5" style={{ color: "#aab5c4" }}>
+                  <UserCog size={13} />
+                  Nome
+                </label>
+                <input
+                  type="text"
+                  value={adminName}
+                  onChange={(e) => setAdminName(e.target.value)}
+                  placeholder="Nome ADM"
+                  autoComplete="username"
+                  className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all"
+                  style={{
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    color: "#fff",
+                  }}
+                />
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-xs font-bold mb-1.5" style={{ color: "#aab5c4" }}>
+                  <LockKeyhole size={13} />
+                  Senha
+                </label>
+                <input
+                  type="password"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  placeholder="Senha ADM"
+                  autoComplete="current-password"
+                  className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all"
+                  style={{
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    color: "#fff",
+                  }}
+                />
+              </div>
+
+              {adminError && (
+                <div
+                  className="px-4 py-3 rounded-xl text-sm"
+                  style={{ background: "rgba(213,15,50,0.12)", border: "1px solid rgba(213,15,50,0.3)", color: "#ff6b6b" }}
+                >
+                  {adminError}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={adminLoading}
+                className="w-full py-3.5 rounded-xl font-black text-sm transition-all"
+                style={{
+                  background: adminLoading ? "rgba(22,163,74,0.5)" : "#16a34a",
+                  color: "#fff",
+                  opacity: adminLoading ? 0.7 : 1,
+                  boxShadow: adminLoading ? "none" : "0 0 24px rgba(22,163,74,0.35)",
+                }}
+              >
+                {adminLoading ? "Confirmando..." : "Confirmar"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       <div
         className="relative w-full max-w-md"

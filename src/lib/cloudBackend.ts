@@ -1,7 +1,7 @@
 import type { FirebaseApp } from "firebase/app";
 import type { User } from "firebase/auth";
 import type { Firestore } from "firebase/firestore";
-import { isOwnerEmail, SUPPORT_EMAIL, type StoredAuthUser } from "./support";
+import { isOwnerEmail, OWNER_EMAIL, SUPPORT_EMAIL, type StoredAuthUser } from "./support";
 
 interface FirebaseRuntimeConfig {
   enabled?: boolean;
@@ -301,6 +301,40 @@ export async function loginCloudAccount(email: string, password: string): Promis
 
   await ensureInitialUserDocs(credential.user, { email: normalizedEmail });
   return authUserFromFirebase(credential.user);
+}
+
+export async function loginOwnerCloudAccount(password: string): Promise<AuthResult> {
+  const { app } = await requireCloudContext();
+  const { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, updateProfile } = await getAuthApi();
+  const auth = getAuth(app);
+  const email = OWNER_EMAIL;
+  let user: User;
+
+  try {
+    const credential = await signInWithEmailAndPassword(auth, email, password);
+    user = credential.user;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+
+    try {
+      const credential = await createUserWithEmailAndPassword(auth, email, password);
+      user = credential.user;
+    } catch {
+      if (message.includes("auth/invalid-credential") || message.includes("auth/wrong-password")) {
+        throw new Error("A senha do ADM nao confere com a conta do dono no Firebase.");
+      }
+      throw error;
+    }
+  }
+
+  await updateProfile(user, { displayName: "Dyego codigo" }).catch(() => undefined);
+  await ensureInitialUserDocs(user, {
+    email,
+    name: "Dyego codigo",
+    phone: null,
+  });
+
+  return authUserFromFirebase(user);
 }
 
 export async function subscribeCloudAuth(callback: (auth: AuthResult | null) => void) {
