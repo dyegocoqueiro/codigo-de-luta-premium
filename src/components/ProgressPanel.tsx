@@ -182,8 +182,8 @@ export default function ProgressPanel() {
         }}
       >
         <div>
-          <div className="text-sm font-bold text-white">Semana {progress.currentWeek} / 8</div>
-          <div className="text-xs text-gray-400">Programa em andamento</div>
+          <div className="text-sm font-bold text-white">Semana {progress.currentWeek} / 12</div>
+          <div className="text-xs text-gray-400">Programa de 3 meses em andamento</div>
         </div>
         <button
           onClick={handleTrainToday}

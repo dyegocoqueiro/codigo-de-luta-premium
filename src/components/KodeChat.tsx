@@ -15,7 +15,7 @@ export default function KodeChat() {
     {
       id: msgIdCounter++,
       role: "assistant",
-      content: "Saudações, guerreiro. Sou o **Kode**, seu treinador de combate híbrido.\n\nEstou aqui para guiar seu treino no sistema Código de Luta — Boxe, Muay Thai, Kickboxing, Sanda, BJJ Solo, Sambo/Wrestling, Krav Maga e MMA Integrado.\n\nMe pergunte sobre técnicas, combos, condicionamento ou o programa de 8 semanas. Estou pronto.",
+      content: "Saudações, guerreiro. Sou o **Kode**, seu treinador de combate híbrido.\n\nEstou aqui para guiar seu treino no sistema Código de Luta — Boxe, Muay Thai, Kickboxing, Sanda, BJJ Solo, Sambo/Wrestling, Krav Maga e MMA Integrado.\n\nMe pergunte sobre técnicas, combos, condicionamento, o programa de 3 meses ou qualquer combo de 1 a 140. Estou pronto.",
     },
   ]);
   const [input, setInput] = useState("");

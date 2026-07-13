@@ -1,3 +1,6 @@
+import { COMBOS } from "./combos";
+import { TRAINING_PLAN } from "./trainingPlan";
+
 interface AIRule {
   keywords: string[];
   responses: string[];
@@ -20,7 +23,7 @@ const rules: AIRule[] = [
   {
     keywords: ["muay thai", "thai", "cotovelada", "joelhada", "clinch"],
     responses: [
-      "O Muay Thai é a arte dos 8 membros — punhos, cotovelos, joelhos e pernas. No sistema Código de Luta, você vai dominar:\n\n**Fundamentos Muay Thai para Solo:**\n• Teep (chute frontal) — seu jab das pernas\n• Low kick — ataque à coxa/panturrilha\n• Roundhouse médio e alto\n• Joelhos no clinch (simule com saco)\n• Cotoveladas (treino técnico, sem contato)\n\n**Drill semanal:** Semana 1-2: Teep + Low kick. Semana 3-4: Clinch knee + Roundhouse. Semana 5+: integração com boxing.\n\nLembre: O Muay Thai exige condicionamento de pernas. Inclua 50 roundhouses por lado em cada sessão.",
+      "O Muay Thai é a arte dos 8 membros — punhos, cotovelos, joelhos e pernas. No sistema Código de Luta, você vai dominar:\n\n**Fundamentos Muay Thai para Solo:**\n• Teep (chute frontal) — seu jab das pernas\n• Low kick — ataque à coxa/panturrilha\n• Roundhouse médio e alto\n• Joelhos no clinch (simule com saco)\n• Cotoveladas (treino técnico, sem contato)\n\n**No plano de 3 meses:** Mês 1: Teep + Low kick. Mês 2: integração com boxe, Sanda e anti-queda. Mês 3: rounds completos com controle de ritmo.\n\nLembre: O Muay Thai exige condicionamento de pernas. Inclua 50 roundhouses por lado em cada sessão.",
       "No Muay Thai, o clinch é onde você separa os iniciantes dos lutadores reais.\n\n**Treino de clinch solo:**\n1. Simule com saco de areia\n2. 30 joelhos alternados × 5 séries\n3. Prática de entrada: Jab → Direto → passo interno → clinch\n4. Saída de clinch: push + teep de seguimento\n\nSemana recomendada: Módulo 2 do seu programa.",
     ]
   },
@@ -47,7 +50,7 @@ const rules: AIRule[] = [
   {
     keywords: ["semana", "programa", "treino hoje", "qual treino", "o que treinar"],
     responses: [
-      "O programa Código de Luta tem 8 semanas divididas em 4 fases:\n\n**Semanas 1-2 — Fundação:** Postura, guarda, golpes básicos, footwork\n**Semanas 3-4 — Volume:** Mais rounds, combinações, reflexo\n**Semanas 5-6 — Integração:** Transições entre módulos, pressão\n**Semanas 7-8 — Pico Técnico:** Avaliação, testes parciais\n\n**Para hoje:** Consulte seu painel de evolução para ver em qual semana você está. Cada semana tem checklist específico de drills.\n\nDica: nunca pule para a próxima semana sem completar o checklist da semana atual.",
+      "O programa Código de Luta agora tem **3 meses / 12 semanas**, com treino por dias:\n\n**Mês 1 — Fundação e Volume:** postura, guarda, jab, defesa, teep, low kick e rounds limpos.\n**Mês 2 — Integração:** anti-queda, BJJ solo, chão para pé, Sanda, transições e flow híbrido.\n**Mês 3 — Pressão e Fluidez:** defesa responsável, round completo, teste técnico e revisão final.\n\n**Para hoje:** abra a seção Programa e clique na semana atual. Se quiser, pergunte “semana 1”, “semana 6” ou “semana 12” que eu mostro o treino completo.",
     ]
   },
   {
@@ -94,10 +97,44 @@ const rules: AIRule[] = [
   },
 ];
 
+function getComboResponse(id: number) {
+  const combo = COMBOS.find((item) => item.id === id);
+  if (!combo) {
+    return "Não encontrei esse combo na biblioteca. Escolha um número de 1 a 140.";
+  }
+
+  return `**Combo #${combo.id} - ${combo.title}**\n\n**Mix:** ${combo.mix}\n**Categoria:** ${combo.category}\n**Nível:** ${combo.level}\n**Distância:** ${combo.distance}\n\n**Sequência:** ${combo.sequence}\n\n**Objetivo:** ${combo.objective}\n\n**Solo drill:** ${combo.soloDrill}\n\n**Ponto-chave:** ${combo.key}\n\n**Segurança:** ${combo.safety}`;
+}
+
+function getWeekPlanResponse(week: number) {
+  const plan = TRAINING_PLAN.find((item) => item.week === week);
+  if (!plan) {
+    return "Não encontrei essa semana no plano. O programa atual tem 12 semanas em 3 meses.";
+  }
+
+  return `**Semana ${plan.week} - ${plan.title}**\n${plan.phase}\n\n**Foco:** ${plan.subtitle}\n${plan.desc}\n\n**Módulos:** ${plan.modules.join(", ")}\n\n${plan.days.map((day) => `• ${day}`).join("\n")}\n\n**Checkpoint:** ${plan.checkpoint}`;
+}
+
 function findBestResponse(message: string): string {
   const lower = message.toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
+
+  const comboMatch = lower.match(/(?:combo|sequencia|sequencia tecnica|#)\s*#?\s*(\d{1,3})/);
+  const comboId = comboMatch ? Number(comboMatch[1]) : 0;
+  if (comboId >= 1 && comboId <= COMBOS.length) {
+    return getComboResponse(comboId);
+  }
+
+  const weekMatch = lower.match(/semana\s*(\d{1,2})/);
+  const weekNumber = weekMatch ? Number(weekMatch[1]) : 0;
+  if (weekNumber >= 1 && weekNumber <= TRAINING_PLAN.length) {
+    return getWeekPlanResponse(weekNumber);
+  }
+
+  if (lower.includes("140") || lower.includes("biblioteca")) {
+    return `A biblioteca do Código de Luta agora tem **${COMBOS.length} combos completos**.\n\nVocê pode buscar por arte, categoria, nível, distância ou número do combo. Exemplo: pergunte **combo 132** e eu explico sequência, objetivo, solo drill, ponto-chave e segurança.\n\nUse a página Combos para filtrar por MMA, Striking, Sanda, Solo/Chão, Transição, Defesa responsável e Round completo.`;
+  }
 
   for (const rule of rules) {
     for (const kw of rule.keywords) {
@@ -115,14 +152,14 @@ function findBestResponse(message: string): string {
 function getGenericResponse(msg: string): string {
   const greetings = ["oi", "ola", "bom dia", "boa tarde", "boa noite", "oi kode", "e ai"];
   if (greetings.some(g => msg.includes(g))) {
-    return "Saudações, guerreiro! Sou o Kode, seu treinador de combate híbrido.\n\nEstou aqui para guiar seu treino no Código de Luta — covering Boxe, Muay Thai, Kickboxing, Sanda, BJJ Solo, Sambo/Wrestling, Krav Maga e MMA Integrado.\n\nMe pergunte sobre:\n• Técnicas e mecânica de golpes\n• Combos e sequências\n• Condicionamento e recuperação\n• Programa das 8 semanas\n• Equipamentos\n\nQual aspecto do seu treino quer melhorar hoje?";
+    return "Saudações, guerreiro! Sou o Kode, seu treinador de combate híbrido.\n\nEstou aqui para guiar seu treino no Código de Luta — cobrindo Boxe, Muay Thai, Kickboxing, Sanda, BJJ Solo, Sambo/Wrestling, Krav Maga e MMA Integrado.\n\nMe pergunte sobre:\n• Técnicas e mecânica de golpes\n• Combos e sequências de 1 a 140\n• Condicionamento e recuperação\n• Programa de 3 meses / 12 semanas\n• Equipamentos\n\nQual aspecto do seu treino quer melhorar hoje?";
   }
 
   const fallbacks = [
     "Boa pergunta, guerreiro. No contexto do Código de Luta, sempre comece com o fundamento: postura correta, guarda ativa, footwork constante. Me fale mais sobre o que está treinando e posso direcionar melhor — qual módulo ou técnica específica você quer aprimorar?",
     "Para evoluir no sistema híbrido, você precisa de três pilares: técnica, volume e consistência. Nenhum combo sofisticado substitui fundamentos sólidos. Qual módulo você está trabalhando esta semana? Posso dar um drill específico.",
     "Cada lutador tem suas fraquezas e fortalezas. No Código de Luta, identificamos as lacunas e trabalhamos sistematicamente. Me conte: você é iniciante, intermediário ou avançado? E qual arte marcial tem mais background?",
-    "No sistema Código de Luta, seguimos a progressão: fundação → volume → integração → pico técnico. Para responder melhor, preciso saber: em qual semana do programa você está? E qual dificuldade específica quer resolver?",
+    "No sistema Código de Luta, seguimos a progressão: fundação → volume → integração → pressão e fluidez. Para responder melhor, preciso saber: em qual semana do programa você está? E qual dificuldade específica quer resolver?",
   ];
 
   return fallbacks[Math.floor(Math.random() * fallbacks.length)];
@@ -138,5 +175,5 @@ export const SUGGESTED_QUESTIONS = [
   "Como melhorar meu condicionamento?",
   "Me explique o sprawl",
   "Técnicas de defesa para treinar solo",
-  "Como funciona o programa de 8 semanas?",
+  "Como funciona o programa de 3 meses?",
 ];

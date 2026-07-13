@@ -176,10 +176,7 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
       localStorage.setItem("cl_auth_token", authResult.token);
       localStorage.setItem("cl_auth_user", JSON.stringify(authResult.user));
 
-      if (!window.location.pathname.includes("/admin")) {
-        setLocation("/admin");
-      }
-
+      setLocation("/");
       onAuth(authResult.token, authResult.user);
     } catch (err) {
       setAdminError(err instanceof Error ? err.message : "Nao foi possivel entrar como ADM.");

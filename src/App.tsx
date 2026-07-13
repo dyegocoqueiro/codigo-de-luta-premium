@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +13,7 @@ import Navbar from "@/components/Navbar";
 import ParticleCanvas from "@/components/ParticleCanvas";
 import ErrorReporter from "@/components/ErrorReporter";
 import SupportButton from "@/components/SupportButton";
+import FloatingKodeButton from "@/components/FloatingKodeButton";
 import { signOutCloudAccount, subscribeCloudAuth } from "@/lib/cloudBackend";
 import bgMusic from "@assets/NEFFEX_-_Fightback_(INSTRUMENTAL)_-_IXORBEATZZ_(youtube)_1782758047742.mp3";
 
@@ -46,6 +47,7 @@ function loadStoredAuth(): { token: string; user: AuthUser } | null {
 }
 
 function AppShell() {
+  const [, setLocation] = useLocation();
   const [auth, setAuth] = useState<{ token: string; user: AuthUser } | null>(loadStoredAuth);
   const [musicPlaying, setMusicPlaying] = useState(false);
   const [musicMuted, setMusicMuted] = useState(() => localStorage.getItem(MUSIC_KEY) === "1");
@@ -124,6 +126,7 @@ function AppShell() {
   };
 
   const handleAuth = (token: string, user: AuthUser) => {
+    setLocation("/");
     window.scrollTo({ top: 0, behavior: "instant" });
     setAuth({ token, user });
   };
@@ -149,6 +152,7 @@ function AppShell() {
         user={auth.user}
         onLogout={handleLogout}
       />
+      <FloatingKodeButton />
       <SupportButton />
       <Switch>
         <Route path="/" component={Home} />

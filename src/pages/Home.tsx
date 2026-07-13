@@ -7,22 +7,12 @@ import heroVideo from "@assets/codigo-luta-hero-lutadores_1782758047742.mp4";
 import kodeAvatar from "@assets/kode-avatar_1782758047742.png";
 import { TRAINING_MODULES, type TrainingVideo } from "../data/modules";
 import { COMBOS } from "../data/combos";
+import { TRAINING_PLAN } from "../data/trainingPlan";
 import KodeChat from "../components/KodeChat";
 import ProgressPanel from "../components/ProgressPanel";
 import ScrollReveal from "../components/ScrollReveal";
 import YouTubeModal from "../components/YouTubeModal";
 import { useMultiReveal } from "../hooks/useScrollReveal";
-
-const WEEK_SCHEDULE = [
-  { week: 1, title: "Fundação 1", subtitle: "Postura e movimentos limpos", desc: "Estabelece a base: guarda, footwork, jab, direto. Diagnóstico inicial.", modules: ["Boxe"] },
-  { week: 2, title: "Fundação 2", subtitle: "Defesa, esquiva e equilíbrio", desc: "Slip, bob & weave, teep, low kick. Defesa integrada ao ataque.", modules: ["Boxe", "Muay Thai"] },
-  { week: 3, title: "Volume 1", subtitle: "Mais rounds e combinações", desc: "Aumenta volume de rounds. Introduz Kickboxing e Sanda.", modules: ["Kickboxing", "Sanda"] },
-  { week: 4, title: "Volume 2", subtitle: "Reflexo e ritmo", desc: "Drills de reflexo, timing e variação de velocidade nos combos.", modules: ["Sanda", "Boxe"] },
-  { week: 5, title: "Integração 1", subtitle: "Transições fortes", desc: "Introduz Wrestling/Sambo. Sprawl, level change, clinch.", modules: ["Sambo", "MMA"] },
-  { week: 6, title: "Integração 2", subtitle: "Pressão controlada", desc: "BJJ Solo + integração completa. Ground & pound simulado.", modules: ["BJJ", "MMA"] },
-  { week: 7, title: "Pico Técnico 1", subtitle: "Testes parciais", desc: "Avaliação técnica de cada módulo. Krav Maga Responsável.", modules: ["Krav Maga", "MMA"] },
-  { week: 8, title: "Pico Técnico 2", subtitle: "Avaliação final", desc: "Shadow MMA completo. Avaliação final. Planejamento do próximo ciclo.", modules: ["MMA"] },
-];
 
 function ModuleCard({ mod, index, onVideoClick }: {
   mod: typeof TRAINING_MODULES[0];
@@ -126,9 +116,10 @@ function ModuleCard({ mod, index, onVideoClick }: {
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [currentWeek] = useState(1);
+  const [expandedWeek, setExpandedWeek] = useState(currentWeek);
   const [ytModal, setYtModal] = useState<{ id: string; title: string; videos?: TrainingVideo[] } | null>(null);
   const { containerRef: statsContainer, visibleCount: statsVisible } = useMultiReveal(4, 100);
-  const { containerRef: weekContainer, visibleCount: weekVisible } = useMultiReveal(8, 80);
+  const { containerRef: weekContainer, visibleCount: weekVisible } = useMultiReveal(TRAINING_PLAN.length, 80);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -231,10 +222,10 @@ export default function Home() {
                   <div className="text-xs tracking-widest uppercase mb-4" style={{ color: "#d50f32" }}>Painel do Lutador</div>
                   <div className="grid grid-cols-2 gap-3">
                     {[
-                      { label: "Semana Atual", value: "1 / 8", sub: "Fundação 1", color: "#f8c54d" },
+                      { label: "Semana Atual", value: "1 / 12", sub: "Mês 1 - Fundação", color: "#f8c54d" },
                       { label: "XP Total", value: "0", sub: "início limpo", color: "#32d98b" },
                       { label: "Módulos", value: "8", sub: "artes marciais", color: "#59bfff" },
-                      { label: "Combos", value: "30+", sub: "sequências", color: "#ff355a" },
+                      { label: "Combos", value: "140", sub: "sequências", color: "#ff355a" },
                     ].map(stat => (
                       <div key={stat.label} className="rounded-2xl p-4" style={{ background: "rgba(6,8,13,0.6)", border: "1px solid rgba(255,255,255,0.06)" }}>
                         <div className="text-xs mb-1" style={{ color: "#aab5c4" }}>{stat.label}</div>
@@ -279,16 +270,16 @@ export default function Home() {
                 O QUE É O<br /><span style={{ color: "#d50f32" }}>CÓDIGO DE LUTA</span>
               </h2>
               <p className="text-lg max-w-2xl mx-auto" style={{ color: "#aab5c4", lineHeight: 1.7 }}>
-                Um sistema de 8 semanas que integra 7 artes marciais em treinos 100% solo. Sem parceiro obrigatório. Com autocorreção por vídeo, IA de treino e biblioteca de 30+ combos.
+                Um sistema de 3 meses que integra 7 artes marciais em treinos 100% solo. Sem parceiro obrigatório. Com autocorreção por vídeo, IA de treino e biblioteca de 140 combos.
               </p>
             </div>
           </ScrollReveal>
 
           <div ref={statsContainer} className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
             {[
-              { value: "8", label: "Semanas", sub: "de programa estruturado", color: "#d50f32" },
+              { value: "3", label: "Meses", sub: "12 semanas por dias", color: "#d50f32" },
               { value: "7", label: "Artes Marciais", sub: "integradas ao sistema", color: "#f8c54d" },
-              { value: "30+", label: "Combos", sub: "na biblioteca completa", color: "#32d98b" },
+              { value: "140", label: "Combos", sub: "na biblioteca completa", color: "#32d98b" },
               { value: "100%", label: "Solo", sub: "sem parceiro obrigatório", color: "#59bfff" },
             ].map((stat, i) => (
               <div
@@ -478,7 +469,7 @@ export default function Home() {
                   <div className="h-px w-12" style={{ background: "rgba(255,53,90,0.5)" }} />
                 </div>
                 <h2 className="font-black" style={{ fontFamily: "Impact, Arial Black, sans-serif", fontSize: "clamp(2.5rem, 5vw, 4rem)", color: "#fff" }}>
-                  30+ COMBOS<br /><span style={{ color: "#ff355a" }}>TÉCNICOS</span>
+                  140 COMBOS<br /><span style={{ color: "#ff355a" }}>TÉCNICOS</span>
                 </h2>
               </div>
               <Link href="/combos">
@@ -555,7 +546,7 @@ export default function Home() {
                     "Conhecimento profundo de Boxe, Muay Thai, BJJ, MMA e mais",
                     "Respostas em português sobre técnica, treino e condicionamento",
                     "Análise personalizada de cada sessão de treino",
-                    "Orientação sobre o programa de 8 semanas",
+                    "Orientação sobre o programa de 3 meses",
                   ].map((item, i) => (
                     <ScrollReveal key={item} animation="fadeLeft" delay={i * 80}>
                       <div className="flex items-start gap-3 text-sm" style={{ color: "#aab5c4" }}>
@@ -595,53 +586,98 @@ export default function Home() {
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-3 mb-4">
                 <div className="h-px w-12" style={{ background: "rgba(89,191,255,0.5)" }} />
-                <span className="text-xs tracking-widest uppercase" style={{ color: "#59bfff" }}>8 Semanas</span>
+                <span className="text-xs tracking-widest uppercase" style={{ color: "#59bfff" }}>3 Meses</span>
                 <div className="h-px w-12" style={{ background: "rgba(89,191,255,0.5)" }} />
               </div>
               <h2 className="font-black mb-4" style={{ fontFamily: "Impact, Arial Black, sans-serif", fontSize: "clamp(2.5rem, 5vw, 4rem)", color: "#fff" }}>
-                PROGRAMA<br /><span style={{ color: "#59bfff" }}>SEMANA A SEMANA</span>
+                PROGRAMA<br /><span style={{ color: "#59bfff" }}>POR DIAS</span>
               </h2>
+              <p className="text-base max-w-2xl mx-auto" style={{ color: "#aab5c4", lineHeight: 1.7 }}>
+                São 12 semanas em 3 meses. Clique em uma semana para abrir os dias de treino completos, com foco, módulos e checkpoint técnico.
+              </p>
             </div>
           </ScrollReveal>
 
-          <div ref={weekContainer} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {WEEK_SCHEDULE.map((w, i) => (
-              <div
-                key={w.week}
-                className="transition-all duration-700"
-                style={{
-                  opacity: weekVisible > i ? 1 : 0,
-                  transform: weekVisible > i ? "translateY(0) scale(1)" : "translateY(40px) scale(0.95)",
-                }}
-              >
+          <div ref={weekContainer} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {TRAINING_PLAN.map((w, i) => {
+              const isCurrent = w.week === currentWeek;
+              const isExpanded = expandedWeek === w.week;
+
+              return (
                 <div
-                  className={`rounded-2xl p-5 h-full ${w.week === currentWeek ? "scale-105" : ""}`}
+                  key={w.week}
+                  className="transition-all duration-700"
                   style={{
-                    background: w.week === currentWeek ? "rgba(213,15,50,0.12)" : "rgba(16,22,33,0.7)",
-                    border: `1px solid ${w.week === currentWeek ? "rgba(213,15,50,0.4)" : "rgba(255,255,255,0.06)"}`,
-                    boxShadow: w.week === currentWeek ? "0 0 30px rgba(213,15,50,0.15)" : "none",
+                    opacity: weekVisible > i ? 1 : 0,
+                    transform: weekVisible > i ? "translateY(0) scale(1)" : "translateY(40px) scale(0.95)",
                   }}
                 >
-                  {w.week === currentWeek && (
-                    <div className="text-xs font-bold mb-3 flex items-center gap-2" style={{ color: "#d50f32" }}>
-                      <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
-                      SEMANA ATUAL
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setExpandedWeek(isExpanded ? 0 : w.week)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        setExpandedWeek(isExpanded ? 0 : w.week);
+                      }
+                    }}
+                    className={`rounded-2xl p-5 h-full transition-all cursor-pointer ${isCurrent ? "scale-105" : ""}`}
+                    style={{
+                      background: isCurrent ? "rgba(213,15,50,0.12)" : "rgba(16,22,33,0.7)",
+                      border: `1px solid ${isCurrent ? "rgba(213,15,50,0.4)" : "rgba(255,255,255,0.06)"}`,
+                      boxShadow: isCurrent ? "0 0 30px rgba(213,15,50,0.15)" : "none",
+                    }}
+                    data-testid={`training-week-${w.week}`}
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div>
+                        {isCurrent && (
+                          <div className="text-xs font-bold mb-2 flex items-center gap-2" style={{ color: "#d50f32" }}>
+                            <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+                            SEMANA ATUAL
+                          </div>
+                        )}
+                        <div className="text-xs font-bold mb-1" style={{ color: "#59bfff" }}>{w.phase}</div>
+                      </div>
+                      <div className="text-xs px-2 py-1 rounded-full" style={{ background: "rgba(89,191,255,0.12)", color: "#59bfff", border: "1px solid rgba(89,191,255,0.25)" }}>
+                        {isExpanded ? "Fechar" : "Abrir"}
+                      </div>
                     </div>
-                  )}
-                  <div className="text-3xl font-black mb-1" style={{ fontFamily: "Impact, Arial Black, sans-serif", color: w.week === currentWeek ? "#d50f32" : "#aab5c4" }}>
-                    {w.week.toString().padStart(2, "0")}
-                  </div>
-                  <div className="font-bold text-white text-sm mb-1">{w.title}</div>
-                  <div className="text-xs mb-3" style={{ color: "#59bfff" }}>{w.subtitle}</div>
-                  <p className="text-xs leading-relaxed mb-3" style={{ color: "#8899aa" }}>{w.desc}</p>
-                  <div className="flex flex-wrap gap-1">
-                    {w.modules.map(m => (
-                      <span key={m} className="text-xs px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.06)", color: "#aab5c4" }}>{m}</span>
-                    ))}
+
+                    <div className="text-3xl font-black mb-1" style={{ fontFamily: "Impact, Arial Black, sans-serif", color: isCurrent ? "#d50f32" : "#aab5c4" }}>
+                      {w.week.toString().padStart(2, "0")}
+                    </div>
+                    <div className="font-bold text-white text-sm mb-1">{w.title}</div>
+                    <div className="text-xs mb-3" style={{ color: "#59bfff" }}>{w.subtitle}</div>
+                    <p className="text-xs leading-relaxed mb-3" style={{ color: "#8899aa" }}>{w.desc}</p>
+
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {w.modules.map(m => (
+                        <span key={m} className="text-xs px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.06)", color: "#aab5c4" }}>{m}</span>
+                      ))}
+                    </div>
+
+                    {isExpanded && (
+                      <div className="mt-4 pt-4 space-y-3" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+                        <div className="text-xs font-bold uppercase tracking-widest" style={{ color: "#f8c54d" }}>Treino da semana</div>
+                        <div className="space-y-2">
+                          {w.days.map(day => (
+                            <div key={day} className="text-xs leading-relaxed flex gap-2" style={{ color: "#c9d4e3" }}>
+                              <span style={{ color: "#59bfff" }}>•</span>
+                              <span>{day}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="text-xs leading-relaxed rounded-xl p-3" style={{ background: "rgba(248,197,77,0.08)", border: "1px solid rgba(248,197,77,0.18)", color: "#f2d184" }}>
+                          <strong>Checkpoint:</strong> {w.checkpoint}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -660,7 +696,7 @@ export default function Home() {
                   MANUAL HÍBRIDO SOLO<br /><span style={{ color: "#f8c54d" }}>V2 PROFISSIONAL</span>
                 </h2>
                 <p className="text-base mb-8 max-w-xl mx-auto" style={{ color: "#aab5c4", lineHeight: 1.7 }}>
-                  O manual completo do sistema: 8 semanas detalhadas, cards técnicos, links de vídeo, QR codes e guia de equipamentos. 100% gratuito.
+                  O manual completo do sistema: 3 meses de treino, cards técnicos, links de vídeo, QR codes e guia de equipamentos. 100% gratuito.
                 </p>
                 <div className="flex flex-wrap gap-4 justify-center">
                   <a

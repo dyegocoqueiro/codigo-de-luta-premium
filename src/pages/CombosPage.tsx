@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
-import { COMBOS, CATEGORIES, LEVELS, MODULE_COLORS } from "../data/combos";
+import { COMBOS, CATEGORIES, LEVELS, MIXES, DISTANCES, MODULE_COLORS } from "../data/combos";
 import logoImg from "@assets/codigo-luta-logo_1782758047742.png";
 import { userScopedStorageKey } from "../lib/support";
 import { loadCloudStudiedCombos, saveCloudStudiedCombos } from "../lib/cloudBackend";
@@ -10,6 +10,8 @@ const VISIBLE_STEP = 18;
 export default function CombosPage() {
   const [category, setCategory] = useState("Todos");
   const [level, setLevel] = useState("Todos");
+  const [mix, setMix] = useState("Todos");
+  const [distance, setDistance] = useState("Todas");
   const [search, setSearch] = useState("");
   const [visible, setVisible] = useState(VISIBLE_STEP);
   const [studied, setStudied] = useState<Set<number>>(() => {
@@ -40,11 +42,13 @@ export default function CombosPage() {
     return COMBOS.filter(c => {
       const matchCat = category === "Todos" || c.category === category;
       const matchLvl = level === "Todos" || c.level === level;
+      const matchMix = mix === "Todos" || c.mix === mix;
+      const matchDistance = distance === "Todas" || c.distance === distance;
       const q = search.toLowerCase();
-      const matchSearch = !q || [c.title, c.mix, c.category, c.sequence, c.objective].join(" ").toLowerCase().includes(q);
-      return matchCat && matchLvl && matchSearch;
+      const matchSearch = !q || [c.title, c.mix, c.category, c.level, c.distance, c.sequence, c.objective, c.soloDrill, c.key, c.safety].join(" ").toLowerCase().includes(q);
+      return matchCat && matchLvl && matchMix && matchDistance && matchSearch;
     });
-  }, [category, level, search]);
+  }, [category, level, mix, distance, search]);
 
   const shown = filtered.slice(0, visible);
 
@@ -155,6 +159,38 @@ export default function CombosPage() {
                 </button>
               ))}
             </div>
+
+            <select
+              value={mix}
+              onChange={e => { setMix(e.target.value); setVisible(VISIBLE_STEP); }}
+              className="px-3 py-2 rounded-xl text-xs font-bold outline-none"
+              style={{
+                background: "rgba(255,255,255,0.05)",
+                color: "#aab5c4",
+                border: "1px solid rgba(255,255,255,0.1)",
+              }}
+              data-testid="filter-mix"
+            >
+              {MIXES.map(item => (
+                <option key={item} value={item}>{item === "Todos" ? "Todas as artes" : item}</option>
+              ))}
+            </select>
+
+            <select
+              value={distance}
+              onChange={e => { setDistance(e.target.value); setVisible(VISIBLE_STEP); }}
+              className="px-3 py-2 rounded-xl text-xs font-bold outline-none"
+              style={{
+                background: "rgba(255,255,255,0.05)",
+                color: "#aab5c4",
+                border: "1px solid rgba(255,255,255,0.1)",
+              }}
+              data-testid="filter-distance"
+            >
+              {DISTANCES.map(item => (
+                <option key={item} value={item}>{item === "Todas" ? "Todas as distâncias" : item}</option>
+              ))}
+            </select>
           </div>
 
           <div className="mt-2 text-xs" style={{ color: "#aab5c4" }}>
